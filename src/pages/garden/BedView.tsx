@@ -8,11 +8,13 @@ import {
 import { CROP_DOT } from '@design/cropColors';
 import { Label, Hairline } from '@design/primitives';
 import { T } from '@design/tokens';
+import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
   const { gardenId = 'demo', bedId = '' } = useParams<{ gardenId: string; bedId: string }>();
-  const { tree, status } = useGarden(gardenId);
+  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout } = useGarden(gardenId);
   const [lens, setLens] = useState<'visual' | 'list'>('visual');
+  const [editing, setEditing] = useState(false);
   const [plantId, setPlantId] = useState<string | null>(null);
 
   const bed = tree?.beds.find((b) => b.id === bedId);
@@ -78,11 +80,23 @@ export default function BedView() {
               <section className="rounded-card bg-card border border-line p-5 sm:p-7">
                 <div className="flex items-baseline justify-between gap-3">
                   <Label className="text-clay">Plantings · {plants.length}</Label>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
-                    {layout.rows} {layout.rows === 1 ? 'row' : 'rows'}{layout.sideBySide ? ' · side by side' : ''}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
+                      {layout.rows} {layout.rows === 1 ? 'row' : 'rows'}{layout.sideBySide ? ' · side by side' : ''}
+                    </span>
+                    <button type="button" onClick={() => { setEditing((v) => !v); setPlantId(null); }}
+                      className={`rounded-card px-3 py-1 text-[12px] font-semibold transition-colors ${editing ? 'bg-ink text-card' : 'border border-line text-ink70 hover:border-ink70'}`}>
+                      {editing ? 'Done' : 'Edit'}
+                    </button>
+                  </div>
                 </div>
-                <BedShape rows={rows} sideBySide={!!layout.sideBySide} selectedId={plantId} onSelect={setPlantId} />
+                {editing
+                  ? <EditableBedShape
+                      bedId={bed.id} layout={layout} initialRows={rows}
+                      onArrange={setPlantArrangement} onAddPlant={addPlant} onRemovePlant={removePlant}
+                      onSetLayout={(l) => setBedLayout(bed.id, l)}
+                    />
+                  : <BedShape rows={rows} sideBySide={!!layout.sideBySide} selectedId={plantId} onSelect={setPlantId} />}
 
                 {(typeof reservoir === 'number' || otherSystems.length > 0) && (
                   <>

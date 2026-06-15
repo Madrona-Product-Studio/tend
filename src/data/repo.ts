@@ -1,7 +1,7 @@
 // Thin typed repository over Dexie. Views and stores talk to this, never to
 // Dexie directly — so the storage layer stays swappable behind the domain.
 import { db } from './db';
-import type { GardenTree, ID } from '@/domain';
+import type { BedLayout, GardenTree, ID, Plant } from '@/domain';
 
 /** Load everything for one garden in a single pass. */
 export async function loadGardenTree(gardenId: ID): Promise<GardenTree | null> {
@@ -31,4 +31,26 @@ export async function setTaskDone(taskId: ID, done: boolean): Promise<void> {
 
 export async function setBedPosition(bedId: ID, position: { x: number; y: number }): Promise<void> {
   await db.beds.update(bedId, { position });
+}
+
+/** Persist a row+order arrangement for a set of plantings. */
+export async function savePlantArrangement(updates: { id: ID; row: number; order: number }[]): Promise<void> {
+  await db.transaction('rw', db.plants, async () => {
+    for (const u of updates) await db.plants.update(u.id, { row: u.row, order: u.order });
+  });
+}
+
+export async function insertPlant(plant: Plant): Promise<void> {
+  await db.plants.add(plant);
+}
+
+export async function deletePlant(plantId: ID): Promise<void> {
+  await db.transaction('rw', db.plants, db.observations, async () => {
+    await db.plants.delete(plantId);
+    await db.observations.where('plantId').equals(plantId).delete();
+  });
+}
+
+export async function saveBedLayout(bedId: ID, layout: BedLayout): Promise<void> {
+  await db.beds.update(bedId, { layout });
 }

@@ -111,6 +111,7 @@ export interface Plant {
   variety?: string;    // cultivar, e.g. "San Marzano"
   datePlanted?: number;
   row?: number;        // 0-based row index within the bed's layout (optional; auto-distributed if unset)
+  order?: number;      // position within its row (for explicit arrangement)
   attributes: PlantAttributes;
   note?: string;       // neutral note, e.g. "transplanted", "volunteer"
   issue?: string;      // a problem flag, e.g. "bolted", "mold", "failed"

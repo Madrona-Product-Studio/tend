@@ -63,6 +63,7 @@ export function bedRowsOf(plants: Plant[], layout?: BedLayout): { layout: BedLay
   const hasExplicit = plants.some((p) => typeof p.row === 'number');
   if (hasExplicit) {
     plants.forEach((p) => { rows[Math.min(rows.length - 1, Math.max(0, p.row ?? 0))]!.push(p); });
+    rows.forEach((r) => r.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
   } else {
     const perRow = Math.ceil(plants.length / rows.length);
     plants.forEach((p, i) => { rows[Math.min(rows.length - 1, Math.floor(i / perRow))]!.push(p); });
