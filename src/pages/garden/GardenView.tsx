@@ -5,6 +5,7 @@ import { useLens } from '@/hooks/useLens';
 import { LevelHeader } from '@components/LevelChrome';
 import { ZoneDiagram } from '@components/ZoneDiagram';
 import { BedCard, AddBedCard } from '@components/BedCard';
+import { TasksSection } from '@components/TasksSection';
 import { NewBedDialog } from './NewBedDialog';
 import { bedsInZone, zoneLayout, SUN_LABEL, type GardenTree, type Zone } from '@/domain';
 import { Label, Breath, Hairline, Marker } from '@design/primitives';
@@ -13,7 +14,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 export default function GardenView() {
   const { gardenId = 'demo' } = useParams<{ gardenId: string }>();
-  const { tree, status, toggleTask, addBed } = useGarden(gardenId);
+  const { tree, status, toggleTask, addTask, removeTask, addBed } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const navigate = useNavigate();
   const [addingZone, setAddingZone] = useState<Zone | null>(null);
@@ -59,7 +60,11 @@ export default function GardenView() {
                 <ZoneBlock key={z.id} tree={tree} zone={z} index={i + 1} total={tree.zones.length}
                   gardenId={gardenId} onAddBed={() => setAddingZone(z)} />
               ))}
-              <PunchList tree={tree} onToggle={toggleTask} />
+              <section className="mb-12">
+                <TasksSection heading="Punch-list" tasks={tree.tasks} onToggle={toggleTask}
+                  onAdd={(text) => addTask({ text })} onDelete={removeTask}
+                  bedNameOf={(id) => tree.beds.find((b) => b.id === id)?.name} />
+              </section>
             </>
           )}
         </div>
@@ -95,23 +100,3 @@ function ZoneBlock({ tree, zone, index, total, gardenId, onAddBed }: {
   );
 }
 
-function PunchList({ tree, onToggle }: { tree: GardenTree; onToggle: (id: string, done: boolean) => void }) {
-  if (tree.tasks.length === 0) return null;
-  const bedName = (id?: string) => tree.beds.find((b) => b.id === id)?.name;
-  return (
-    <section className="mb-12">
-      <div className="mb-3"><Label className="text-clay">Punch-list · a map and a plan</Label></div>
-      <div className="border-t border-line">
-        {tree.tasks.map((t) => (
-          <button key={t.id} type="button" onClick={() => onToggle(t.id, !t.done)}
-            className="w-full flex items-start gap-3 py-2.5 text-left border-b border-line-soft group">
-            <span className={`mt-1 w-3.5 h-3.5 rounded-full border shrink-0 transition-colors ${t.done ? 'bg-live border-live' : 'border-muted group-hover:border-ink70'}`} />
-            <span className={`flex-1 text-[14px] leading-snug ${t.done ? 'text-faint line-through' : 'text-ink70'}`}>
-              {t.text}{bedName(t.bedId) && <span className="text-muted"> · {bedName(t.bedId)}</span>}
-            </span>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}

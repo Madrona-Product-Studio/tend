@@ -8,6 +8,8 @@ export function useGarden(gardenId: ID) {
   const status = useGardenStore((s) => s.status);
   const load = useGardenStore((s) => s.load);
   const toggleTask = useGardenStore((s) => s.toggleTask);
+  const addTask = useGardenStore((s) => s.addTask);
+  const removeTask = useGardenStore((s) => s.removeTask);
   const setPlantArrangement = useGardenStore((s) => s.setPlantArrangement);
   const addPlant = useGardenStore((s) => s.addPlant);
   const removePlant = useGardenStore((s) => s.removePlant);
@@ -24,7 +26,7 @@ export function useGarden(gardenId: ID) {
   }, [gardenId, load]);
 
   return {
-    tree, status, toggleTask, setPlantArrangement, addPlant, removePlant, setBedLayout,
+    tree, status, toggleTask, addTask, removeTask, setPlantArrangement, addPlant, removePlant, setBedLayout,
     addBed, setBedGeometry, renameZone, renameBed, addObservation, removeObservation,
   };
 }

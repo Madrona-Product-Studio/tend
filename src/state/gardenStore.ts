@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import type { Bed, BedLayout, BedShape, GardenTree, ID, Observation, Plant, Rect } from '@/domain';
+import type { Bed, BedLayout, BedShape, GardenTree, ID, Observation, Plant, Rect, Task } from '@/domain';
 import {
   loadGardenTree, setTaskDone, savePlantArrangement, insertPlant, deletePlant, saveBedLayout, insertBed, saveBedGeometry,
-  renameZone, renameBed, addObservation, deleteObservation,
+  renameZone, renameBed, addObservation, deleteObservation, addTask, deleteTask,
 } from '@/data/repo';
 import { seedIfEmpty } from '@/data/seed';
 
@@ -13,6 +13,8 @@ interface GardenStore {
   status: Status;
   load: (gardenId: ID) => Promise<void>;
   toggleTask: (taskId: ID, done: boolean) => Promise<void>;
+  addTask: (input: { bedId?: ID; zoneId?: ID; text: string }) => Promise<void>;
+  removeTask: (id: ID) => Promise<void>;
   setPlantArrangement: (updates: { id: ID; row: number; order: number }[]) => Promise<void>;
   addPlant: (plant: Plant) => Promise<void>;
   removePlant: (plantId: ID) => Promise<void>;
@@ -119,6 +121,29 @@ export const useGardenStore = create<GardenStore>((set, get) => ({
     if (!tree) return;
     set({ tree: { ...tree, beds: tree.beds.map((b) => (b.id === bedId ? { ...b, name } : b)) } });
     await renameBed(bedId, name);
+  },
+
+  addTask: async (input) => {
+    const { tree } = get();
+    if (!tree) return;
+    const task: Task = {
+      id: crypto.randomUUID(),
+      gardenId: tree.garden.id,
+      bedId: input.bedId,
+      zoneId: input.zoneId,
+      text: input.text,
+      done: false,
+      createdAt: Date.now(),
+    };
+    set({ tree: { ...tree, tasks: [...tree.tasks, task] } });
+    await addTask(task);
+  },
+
+  removeTask: async (id) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, tasks: tree.tasks.filter((t) => t.id !== id) } });
+    await deleteTask(id);
   },
 
   addObservation: async (input) => {

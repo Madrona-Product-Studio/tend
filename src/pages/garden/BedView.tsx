@@ -11,11 +11,12 @@ import { CROP_DOT } from '@design/cropColors';
 import { Label, Hairline } from '@design/primitives';
 import { T } from '@design/tokens';
 import { NotesSection } from '@components/NotesSection';
+import { TasksSection } from '@components/TasksSection';
 import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
   const { gardenId = 'demo', bedId = '' } = useParams<{ gardenId: string; bedId: string }>();
-  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed, addObservation, removeObservation } = useGarden(gardenId);
+  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed, addObservation, removeObservation, toggleTask, addTask, removeTask } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const [editing, setEditing] = useState(false);
   const [plantId, setPlantId] = useState<string | null>(null);
@@ -120,11 +121,9 @@ export default function BedView() {
                     </li>
                   ))}
                 </ul>
-                {tasks.length > 0 && (
-                  <div className="mt-6"><Label className="text-clay">Tasks · {tasks.length}</Label>
-                    <ul className="mt-2 flex flex-col gap-1.5">{tasks.map((t) => <li key={t.id} className="text-[13px] text-ink70 pl-4 relative before:content-[''] before:absolute before:left-0 before:top-1.5 before:w-2 before:h-2 before:border before:border-ink70">{t.text}</li>)}</ul>
-                  </div>
-                )}
+                <div className="mt-6 pt-5 border-t border-line-soft">
+                  <TasksSection tasks={tasks} onToggle={toggleTask} onAdd={(text) => addTask({ bedId: bed.id, text })} onDelete={removeTask} />
+                </div>
                 <div className="mt-6 pt-5 border-t border-line-soft">
                   <NotesSection notes={notes} onAdd={(text) => addNote(text)} onDelete={removeObservation}
                     placeholder="A note about this bed — systems, timing, what to change…" />

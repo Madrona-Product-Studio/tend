@@ -6,13 +6,14 @@ import { LevelHeader } from '@components/LevelChrome';
 import { ZoneDiagram } from '@components/ZoneDiagram';
 import { ZoneLayoutEditor } from '@components/ZoneLayoutEditor';
 import { BedCard, AddBedCard } from '@components/BedCard';
+import { TasksSection } from '@components/TasksSection';
 import { NewBedDialog } from './NewBedDialog';
 import { bedsInZone, zoneLayout, SUN_LABEL } from '@/domain';
-import { Label, Breath } from '@design/primitives';
+import { Breath } from '@design/primitives';
 
 export default function ZoneView() {
   const { gardenId = 'demo', zoneId = '' } = useParams<{ gardenId: string; zoneId: string }>();
-  const { tree, status, addBed, setBedGeometry, renameZone } = useGarden(gardenId);
+  const { tree, status, addBed, setBedGeometry, renameZone, toggleTask, addTask, removeTask } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
@@ -71,21 +72,10 @@ export default function ZoneView() {
                 {beds.map((b) => <BedCard key={b.id} tree={tree} bed={b} gardenId={gardenId} />)}
                 <AddBedCard onClick={() => setAdding(true)} />
               </div>
-              {tasks.length > 0 && (
-                <section className="mt-10">
-                  <div className="mb-3"><Label className="text-clay">Tasks · {tasks.length}</Label></div>
-                  <ul className="border-t border-line">
-                    {tasks.map((t) => (
-                      <li key={t.id} className="flex items-start gap-3 py-2.5 border-b border-line-soft">
-                        <span className={`mt-1 w-3 h-3 rounded-full border shrink-0 ${t.done ? 'bg-live border-live' : 'border-muted'}`} />
-                        <span className={`text-[14px] ${t.done ? 'text-faint line-through' : 'text-ink70'}`}>
-                          {t.text}{t.bedId && <span className="text-muted"> · {tree.beds.find((b) => b.id === t.bedId)?.name}</span>}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
+              <section className="mt-10">
+                <TasksSection tasks={tasks} onToggle={toggleTask} onAdd={(text) => addTask({ zoneId: zone.id, text })}
+                  onDelete={removeTask} bedNameOf={(id) => tree.beds.find((b) => b.id === id)?.name} />
+              </section>
             </>
           )}
         </div>
