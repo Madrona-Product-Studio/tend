@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import type { Bed, BedLayout, BedShape, GardenTree, ID, Plant, Rect } from '@/domain';
+import type { Bed, BedLayout, BedShape, GardenTree, ID, Observation, Plant, Rect } from '@/domain';
 import {
   loadGardenTree, setTaskDone, savePlantArrangement, insertPlant, deletePlant, saveBedLayout, insertBed, saveBedGeometry,
-  renameZone, renameBed,
+  renameZone, renameBed, addObservation, deleteObservation,
 } from '@/data/repo';
 import { seedIfEmpty } from '@/data/seed';
 
@@ -21,6 +21,8 @@ interface GardenStore {
   setBedGeometry: (bedId: ID, footprint: Rect, shape?: BedShape) => Promise<void>;
   renameZone: (zoneId: ID, name: string) => Promise<void>;
   renameBed: (bedId: ID, name: string) => Promise<void>;
+  addObservation: (input: { bedId?: ID; plantId?: ID; zoneId?: ID; text: string }) => Promise<void>;
+  removeObservation: (id: ID) => Promise<void>;
 }
 
 export const useGardenStore = create<GardenStore>((set, get) => ({
@@ -117,5 +119,29 @@ export const useGardenStore = create<GardenStore>((set, get) => ({
     if (!tree) return;
     set({ tree: { ...tree, beds: tree.beds.map((b) => (b.id === bedId ? { ...b, name } : b)) } });
     await renameBed(bedId, name);
+  },
+
+  addObservation: async (input) => {
+    const { tree } = get();
+    if (!tree) return;
+    const obs: Observation = {
+      id: crypto.randomUUID(),
+      gardenId: tree.garden.id,
+      bedId: input.bedId,
+      plantId: input.plantId,
+      zoneId: input.zoneId,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      text: input.text,
+      createdAt: Date.now(),
+    };
+    set({ tree: { ...tree, observations: [obs, ...tree.observations] } });
+    await addObservation(obs);
+  },
+
+  removeObservation: async (id) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, observations: tree.observations.filter((o) => o.id !== id) } });
+    await deleteObservation(id);
   },
 }));

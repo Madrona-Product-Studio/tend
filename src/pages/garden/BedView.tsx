@@ -10,11 +10,12 @@ import {
 import { CROP_DOT } from '@design/cropColors';
 import { Label, Hairline } from '@design/primitives';
 import { T } from '@design/tokens';
+import { NotesSection } from '@components/NotesSection';
 import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
   const { gardenId = 'demo', bedId = '' } = useParams<{ gardenId: string; bedId: string }>();
-  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed } = useGarden(gardenId);
+  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed, addObservation, removeObservation } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const [editing, setEditing] = useState(false);
   const [plantId, setPlantId] = useState<string | null>(null);
@@ -42,6 +43,8 @@ export default function BedView() {
   const tasks = tasksForBed(tree, bed.id);
   const notes = observationsForBed(tree, bed.id);
   const planting = plantId ? plants.find((p) => p.id === plantId) ?? null : null;
+
+  const addNote = (text: string, plantId2?: string) => void addObservation({ bedId: bed.id, plantId: plantId2, text });
 
   return (
     <>
@@ -122,16 +125,19 @@ export default function BedView() {
                     <ul className="mt-2 flex flex-col gap-1.5">{tasks.map((t) => <li key={t.id} className="text-[13px] text-ink70 pl-4 relative before:content-[''] before:absolute before:left-0 before:top-1.5 before:w-2 before:h-2 before:border before:border-ink70">{t.text}</li>)}</ul>
                   </div>
                 )}
-                {notes.length > 0 && (
-                  <div className="mt-6"><Label className="text-clay">Notes</Label>
-                    <ul className="mt-2 flex flex-col gap-3">{notes.map((o) => <li key={o.id} className="grid grid-cols-[44px_1fr] gap-3"><span className="font-mono text-[10.5px] text-muted pt-0.5">{o.date}</span><span className="text-[13px] text-ink70 leading-[1.5]">{o.text}</span></li>)}</ul>
-                  </div>
-                )}
+                <div className="mt-6 pt-5 border-t border-line-soft">
+                  <NotesSection notes={notes} onAdd={(text) => addNote(text)} onDelete={removeObservation}
+                    placeholder="A note about this bed — systems, timing, what to change…" />
+                </div>
               </section>
             )}
           </div>
 
-          {planting && <PlantingPanel bed={bed} planting={planting} notes={observationsForPlant(tree, planting.id)} onClose={() => setPlantId(null)} />}
+          {planting && (
+            <PlantingPanel bed={bed} planting={planting} notes={observationsForPlant(tree, planting.id)}
+              onAddNote={(text) => addNote(text, planting.id)} onDeleteNote={removeObservation}
+              onClose={() => setPlantId(null)} />
+          )}
         </div>
       </main>
 
@@ -227,10 +233,12 @@ function SystemChip({ row }: { row: SystemRow }) {
   );
 }
 
-function PlantingPanel({ bed, planting, notes, onClose }: {
+function PlantingPanel({ bed, planting, notes, onAddNote, onDeleteNote, onClose }: {
   bed: { name: string; code?: string; category?: string };
   planting: Plant;
   notes: ReturnType<typeof observationsForPlant>;
+  onAddNote: (text: string) => void;
+  onDeleteNote: (id: string) => void;
   onClose: () => void;
 }) {
   const status = planting.issue ?? planting.note ?? 'Looks healthy';
@@ -252,16 +260,14 @@ function PlantingPanel({ bed, planting, notes, onClose }: {
       <Field label="Group">{CROP_LABEL[planting.attributes.cropCategory]}{bed.category ? ` · ${bed.category}` : ''}</Field>
       <Field label="Status"><span className={planting.issue ? 'text-seal font-medium' : 'text-ink70'}>{status}</span></Field>
 
-      <Block label="Notes">
-        {notes.length > 0
-          ? <ul className="flex flex-col gap-3">{notes.map((o) => <li key={o.id} className="grid grid-cols-[40px_1fr] gap-3"><span className="font-mono text-[10.5px] text-muted">{o.date}</span><span className="text-[13px] text-ink70 leading-[1.5]">{o.text}</span></li>)}</ul>
-          : <p className="text-[12.5px] text-muted leading-[1.55]">No observations yet. This is where you log what you see — what thrived, what bolted, what to change next year.</p>}
+      <div className="mt-4 pt-4 border-t border-line-soft">
+        <NotesSection notes={notes} onAdd={onAddNote} onDelete={onDeleteNote} />
+      </div>
+      <Block label="Species">
+        <Species planting={planting} />
       </Block>
       <Block label="Photos">
-        <p className="text-[12.5px] text-muted leading-[1.55]">Add a photo for reference — the mystery plum, a pest, a label you can’t read. (Coming with sync.)</p>
-      </Block>
-      <Block label="Species">
-        <p className="text-[12.5px] text-muted leading-[1.55]">Care notes, season, soil-temp and pollination needs for {planting.name} will live here.</p>
+        <p className="text-[12.5px] text-muted leading-[1.55]">Add a photo for reference — the mystery plum, a pest, a label you can’t read. (Arrives with cloud sync.)</p>
       </Block>
       <Block label="History">
         <p className="text-[12.5px] text-muted leading-[1.55]">Seasons tracked: 1 (current). Future seasons stack here to show how {planting.name} performs year over year.</p>
@@ -284,6 +290,31 @@ function Block({ label, children }: { label: string; children: React.ReactNode }
     <div className="mt-4 pt-4 border-t border-line-soft">
       <div className="mb-2"><Label className="text-ink">{label}</Label></div>
       {children}
+    </div>
+  );
+}
+
+function Species({ planting }: { planting: Plant }) {
+  const a = planting.attributes;
+  const rows: [string, string][] = [['Category', CROP_LABEL[a.cropCategory]]];
+  if (a.season) rows.push(['Season', a.season === 'cool' ? 'Cool-season' : a.season === 'warm' ? 'Warm-season' : 'Perennial']);
+  if (a.pollinationRequired !== undefined) rows.push(['Pollination', a.pollinationRequired ? 'Required' : 'Not needed']);
+  if (typeof a.soilTempNeedF === 'number') rows.push(['Soil temp', `≥ ${a.soilTempNeedF}°F`]);
+  if (a.waterDemand) rows.push(['Water', `${a.waterDemand[0]!.toUpperCase()}${a.waterDemand.slice(1)}`]);
+  if (a.boltingRisk) rows.push(['Trait', 'Prone to bolting']);
+  return (
+    <div>
+      <div className="flex flex-col">
+        {rows.map(([k, v]) => (
+          <div key={k} className="grid grid-cols-[84px_1fr] gap-3 items-baseline py-1">
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.16em] text-muted">{k}</span>
+            <span className="text-[13px] text-ink70">{v}</span>
+          </div>
+        ))}
+      </div>
+      {rows.length <= 1 && (
+        <p className="mt-2 text-[12px] text-muted leading-[1.5]">More care detail (season, soil temp, pollination) fills in as we enrich {planting.name}.</p>
+      )}
     </div>
   );
 }
