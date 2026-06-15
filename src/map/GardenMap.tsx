@@ -80,12 +80,20 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
           {zoneName && (<><Sep /><Crumb label={zoneName} onClick={focus.level === 'bed' ? () => setFocus({ level: 'zone', zoneId: focus.zoneId }) : undefined} current={focus.level === 'zone'} /></>)}
           {bedName && (<><Sep /><Crumb label={bedName} current /></>)}
         </div>
-        {focus.level !== 'garden' && (
-          <button type="button" onClick={back}
-            className="pointer-events-auto rounded-card bg-card/90 backdrop-blur border border-line px-3 py-1.5 text-sm text-ink70 hover:border-ink70 transition-colors">
-            ← Back
-          </button>
-        )}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          {focus.level === 'bed' && (
+            <Link to={`/garden/${tree.garden.id}/bed/${focus.bedId}`}
+              className="rounded-card bg-seal/95 backdrop-blur px-3 py-1.5 text-sm font-semibold text-card hover:opacity-90 transition-opacity">
+              Open bed →
+            </Link>
+          )}
+          {focus.level !== 'garden' && (
+            <button type="button" onClick={back}
+              className="rounded-card bg-card/90 backdrop-blur border border-line px-3 py-1.5 text-sm text-ink70 hover:border-ink70 transition-colors">
+              ← Back
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 pointer-events-none">

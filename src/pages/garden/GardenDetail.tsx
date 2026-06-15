@@ -33,14 +33,14 @@ function Reservoir({ level }: { level: number }) {
   );
 }
 
-function BedCard({ tree, bed }: { tree: GardenTree; bed: Bed }) {
+function BedCard({ tree, bed, gardenId }: { tree: GardenTree; bed: Bed; gardenId: string }) {
   const plants = plantsInBed(tree, bed.id);
   const { covers, sensors, irrigation } = equipmentForBed(tree, bed.id);
   const shown = plants.slice(0, 4).map((p) => p.variety ? `${p.name} ${p.variety}` : p.name);
   const more = plants.length - shown.length;
 
   return (
-    <div className="rounded-card bg-card border border-line p-4">
+    <Link to={`/garden/${gardenId}/bed/${bed.id}`} className="block rounded-card bg-card border border-line p-4 hover:border-ink70 transition-colors">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-[15px] font-semibold text-ink leading-snug">{bed.name}</h3>
         <span className="text-[11px] text-muted shrink-0">{plants.length} plant{plants.length === 1 ? '' : 's'}</span>
@@ -66,11 +66,11 @@ function BedCard({ tree, bed }: { tree: GardenTree; bed: Bed }) {
           ))}
         </div>
       )}
-    </div>
+    </Link>
   );
 }
 
-function ZoneSection({ tree, zone, index, total }: { tree: GardenTree; zone: Zone; index: number; total: number }) {
+function ZoneSection({ tree, zone, index, total, gardenId }: { tree: GardenTree; zone: Zone; index: number; total: number; gardenId: string }) {
   const beds = bedsInZone(tree, zone.id);
   return (
     <section className="mb-12">
@@ -82,7 +82,7 @@ function ZoneSection({ tree, zone, index, total }: { tree: GardenTree; zone: Zon
       {zone.description && <Breath className="mt-2.5 max-w-xl text-[16px]">{zone.description}</Breath>}
       <Hairline className="mt-5 mb-6" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {beds.map((b) => <BedCard key={b.id} tree={tree} bed={b} />)}
+        {beds.map((b) => <BedCard key={b.id} tree={tree} bed={b} gardenId={gardenId} />)}
       </div>
     </section>
   );
@@ -148,7 +148,7 @@ export default function GardenDetail() {
             </header>
 
             {tree.zones.map((z, i) => (
-              <ZoneSection key={z.id} tree={tree} zone={z} index={i + 1} total={tree.zones.length} />
+              <ZoneSection key={z.id} tree={tree} zone={z} index={i + 1} total={tree.zones.length} gardenId={gardenId} />
             ))}
 
             <PunchList tree={tree} onToggle={toggleTask} />

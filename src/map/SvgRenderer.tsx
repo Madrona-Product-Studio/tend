@@ -4,15 +4,10 @@
 // are tappable. Bed: the focused bed shows plants, reservoir level, and the
 // irrigation emitter bar (per docs diagram).
 import type { MouseEvent } from 'react';
-import { plantsInBed, equipmentForBed, BED_TYPE_LABEL, type CropCategory } from '@/domain';
+import { plantsInBed, equipmentForBed, BED_TYPE_LABEL } from '@/domain';
 import { SANS, T } from '@design/tokens';
+import { CROP_DOT as DOT } from '@design/cropColors';
 import type { BedNode, Focus, MapRendererProps, Scene } from './types';
-
-const DOT: Record<CropCategory, string> = {
-  brassica: '#4a7c59', leafy: '#6b9e6b', fruiting: T.seal, cucurbit: '#c8873a',
-  root: '#a06a3a', allium: '#8c7bb0', herb: '#5a8f6a', legume: '#7aa05a',
-  berry: '#9a3b6a', 'fruit-tree': '#7a5230', other: T.muted,
-};
 
 const focusZoneId = (f: Focus) => (f.level === 'garden' ? undefined : f.zoneId);
 

@@ -3,8 +3,10 @@
 // the repository queries by.
 import Dexie, { type EntityTable } from 'dexie';
 import type {
-  Bed, Cover, Garden, IrrigationNode, Plant, Sensor, Task, Zone,
+  Bed, Cover, Garden, IrrigationNode, Observation, Plant, Sensor, Task, Zone,
 } from '@/domain';
+
+export interface MetaRow { key: string; value: number }
 
 export class TendDB extends Dexie {
   gardens!: EntityTable<Garden, 'id'>;
@@ -15,6 +17,8 @@ export class TendDB extends Dexie {
   sensors!: EntityTable<Sensor, 'id'>;
   irrigation!: EntityTable<IrrigationNode, 'id'>;
   tasks!: EntityTable<Task, 'id'>;
+  observations!: EntityTable<Observation, 'id'>;
+  meta!: EntityTable<MetaRow, 'key'>;
 
   constructor() {
     super('tend');
@@ -27,6 +31,10 @@ export class TendDB extends Dexie {
       sensors: 'id, gardenId, assignedBedId',
       irrigation: 'id, gardenId, bedId, order',
       tasks: 'id, gardenId, bedId, done',
+    });
+    this.version(2).stores({
+      observations: 'id, gardenId, bedId, plantId',
+      meta: 'key',
     });
   }
 }

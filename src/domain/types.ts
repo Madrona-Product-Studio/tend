@@ -57,6 +57,7 @@ export interface Zone extends Placement {
   gardenId: ID;
   name: string;
   description?: string;
+  about?: string;              // longer narrative (e.g. "the shady side of the yard…")
   sunExposure?: SunExposure;   // flagged as the single most important factor
   soilTempF?: number;
 }
@@ -71,7 +72,12 @@ export interface Bed extends Placement {
   id: ID;
   zoneId: ID;
   name: string;
+  code?: string;          // human locator, e.g. "Z1·B01"
   type: BedType;
+  typeDetail?: string;    // freeform descriptor from the audit, e.g. "Vigo — wicking floor + reservoir"
+  category?: string;      // crop grouping label, e.g. "Brassicas & roots"
+  exposure?: string;      // freeform, e.g. "Full sun · hot"
+  structures?: string[];  // non-movable fixtures (e.g. trellis)
   widthFt?: number;
   lengthFt?: number;
   soilNotes?: string;
@@ -96,7 +102,9 @@ export interface Plant {
   variety?: string;    // cultivar, e.g. "San Marzano"
   datePlanted?: number;
   attributes: PlantAttributes;
-  notes?: string;
+  note?: string;       // neutral note, e.g. "transplanted", "volunteer"
+  issue?: string;      // a problem flag, e.g. "bolted", "mold", "failed"
+  notes?: string;      // legacy free text (kept for compatibility)
 }
 
 // ── Movable equipment (limited quantity, reassigned between beds) ──────────────
@@ -143,6 +151,19 @@ export interface Task {
   createdAt: number;
 }
 
+/** Observations (notes) cross-cut: they attach to a garden, zone, bed, or
+ *  planting. The heart of year-over-year refinement. */
+export interface Observation {
+  id: ID;
+  gardenId: ID;
+  zoneId?: ID;
+  bedId?: ID;
+  plantId?: ID;
+  date: string;        // human label from the audit ("Jun", "Jun 12", "Note")
+  text: string;
+  createdAt: number;
+}
+
 // ── Aggregate ─────────────────────────────────────────────────────────────────
 
 /** Everything for one garden, loaded together for the map/views. */
@@ -155,4 +176,5 @@ export interface GardenTree {
   sensors: Sensor[];
   irrigation: IrrigationNode[];
   tasks: Task[];
+  observations: Observation[];
 }

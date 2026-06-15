@@ -14,14 +14,15 @@ export async function loadGardenTree(gardenId: ID): Promise<GardenTree | null> {
   const bedIds = beds.map((b) => b.id);
   const plants = await db.plants.where('bedId').anyOf(bedIds).toArray();
 
-  const [covers, sensors, irrigation, tasks] = await Promise.all([
+  const [covers, sensors, irrigation, tasks, observations] = await Promise.all([
     db.covers.where('gardenId').equals(gardenId).toArray(),
     db.sensors.where('gardenId').equals(gardenId).toArray(),
     db.irrigation.where('gardenId').equals(gardenId).toArray(),
     db.tasks.where('gardenId').equals(gardenId).toArray(),
+    db.observations.where('gardenId').equals(gardenId).toArray(),
   ]);
 
-  return { garden, zones, beds, plants, covers, sensors, irrigation, tasks };
+  return { garden, zones, beds, plants, covers, sensors, irrigation, tasks, observations };
 }
 
 export async function setTaskDone(taskId: ID, done: boolean): Promise<void> {
