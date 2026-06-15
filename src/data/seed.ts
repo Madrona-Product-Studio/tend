@@ -12,7 +12,7 @@ import type {
 } from '@/domain';
 
 export const DEMO_GARDEN_ID = 'demo';
-const SEED_VERSION = 3; // bump to force a clean reseed in dev
+const SEED_VERSION = 4; // bump to force a clean reseed in dev
 const now = Date.now();
 
 // ── builders ──────────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ const beds: Bed[] = [
   B('b01', 'z1', 'Z1·B01', 'Wicking Bed', 'vigo-wicking', 'Vigo — wicking floor + reservoir', 'Full sun', 'Brassicas & roots', { state: { reservoirLevel: 0.8, irrigationOn: false } }),
   B('b02', 'z1', 'Z1·B02', 'Trial Bed', 'vigo', 'Vigo raised — newest', 'Full sun', 'Fruiting (trial)', { structures: ['Trellis'], soilNotes: 'The former “cold plunge.” Fully experimental this season.' }),
   B('b03', 'z1', 'Z1·B03', 'Berry & Potato', 'vigo', 'Vigo raised', 'Full sun', 'Mixed'),
-  B('b04', 'z1', 'Z1·B04', 'Peppers & Eggplant', 'vigo-wicking', 'Vigo — wicking floor', 'Full sun · hot', 'Fruiting', { state: { reservoirLevel: 0.6, irrigationOn: false }, layout: { kind: 'rows', rows: 2, sideBySide: true } }),
+  B('b04', 'z1', 'Z1·B04', 'Peppers & Eggplant', 'vigo-wicking', 'Vigo — wicking floor', 'Full sun · hot', 'Fruiting', { state: { reservoirLevel: 0.6, irrigationOn: false }, layout: { kind: 'rows', rows: 2 } }),
   B('b05', 'z1', 'Z1·B05', 'Front Tomato Bed', 'vigo', 'Vigo raised — large', 'Full sun', 'Fruiting'),
   B('b06', 'z1', 'Z1·B06', 'Pea Bed', 'vigo', 'Vigo raised — no wicking', 'Full sun', 'Legumes'),
   B('b07', 'z1', 'Z1·B07', 'Potato Bed', 'vigo', 'Vigo raised', 'Full sun', 'Roots'),

@@ -175,18 +175,29 @@ function BedShape({ rows, sideBySide, selectedId, onSelect }: {
 function Lane({ index, plants, vertical, last, selectedId, onSelect }: {
   index: number; plants: Plant[]; vertical: boolean; last: boolean; selectedId: string | null; onSelect: (id: string) => void;
 }) {
-  const frame = vertical
-    ? `flex-1 min-w-0 px-3 first:pl-1 last:pr-1 ${last ? '' : 'border-r border-line-soft'}`
-    : `py-3 first:pt-1 last:pb-1 ${last ? '' : 'border-b border-line-soft'}`;
-  return (
-    <div className={frame}>
-      <div className="mb-2.5"><span className="text-[9px] font-bold uppercase tracking-[0.18em] text-faint">Row {index + 1}</span></div>
-      <div className={vertical ? 'flex flex-col gap-2 items-start' : 'flex flex-wrap gap-2'}>
-        {plants.map((p) => (
-          <PlantNode key={p.id} plant={p} selected={p.id === selectedId} onClick={() => onSelect(p.id)} />
-        ))}
-        {plants.length === 0 && <span className="text-[11px] italic text-faint">empty</span>}
+  const rowLabel = <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-faint">Row {index + 1}</span>;
+  const nodes = (
+    <>
+      {plants.map((p) => <PlantNode key={p.id} plant={p} selected={p.id === selectedId} onClick={() => onSelect(p.id)} />)}
+      {plants.length === 0 && <span className="text-[11px] italic text-faint">empty</span>}
+    </>
+  );
+
+  // Vertical variant: rows as side-by-side columns (kept for layout variability).
+  if (vertical) {
+    return (
+      <div className={`flex-1 min-w-0 px-3 first:pl-1 last:pr-1 ${last ? '' : 'border-r border-line-soft'}`}>
+        <div className="mb-2.5">{rowLabel}</div>
+        <div className="flex flex-col gap-2 items-start">{nodes}</div>
       </div>
+    );
+  }
+
+  // Default: rows run the long way — a horizontal lane with its label at the start.
+  return (
+    <div className={`flex items-start gap-3 sm:gap-4 py-3 first:pt-1 last:pb-1 ${last ? '' : 'border-b border-line-soft'}`}>
+      <span className="shrink-0 w-10 pt-2">{rowLabel}</span>
+      <div className="flex flex-wrap gap-2 flex-1 min-w-0">{nodes}</div>
     </div>
   );
 }
