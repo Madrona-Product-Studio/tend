@@ -186,15 +186,17 @@ const garden: Garden = {
   id: DEMO_GARDEN_ID, name: 'Home garden', createdAt: now, updatedAt: now,
 };
 
-/** Populate IndexedDB on first run. Idempotent: no-op if a garden already exists. */
-export async function seedIfEmpty(): Promise<void> {
-  const existing = await db.gardens.count();
-  if (existing > 0) return;
+// Memoize so concurrent callers (e.g. React StrictMode's double-invoked effect)
+// share a single seeding transaction instead of racing to insert duplicates.
+let seeding: Promise<void> | null = null;
 
-  await db.transaction(
+/** Populate IndexedDB on first run. Idempotent: no-op if a garden already exists. */
+export function seedIfEmpty(): Promise<void> {
+  seeding ??= db.transaction(
     'rw',
     [db.gardens, db.zones, db.beds, db.plants, db.covers, db.sensors, db.irrigation, db.tasks],
     async () => {
+      if ((await db.gardens.count()) > 0) return;
       await db.gardens.add(garden);
       await db.zones.bulkAdd(zones);
       await db.beds.bulkAdd(beds);
@@ -205,4 +207,5 @@ export async function seedIfEmpty(): Promise<void> {
       await db.tasks.bulkAdd(tasks);
     },
   );
+  return seeding;
 }

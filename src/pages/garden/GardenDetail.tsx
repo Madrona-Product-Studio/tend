@@ -126,7 +126,10 @@ export default function GardenDetail() {
       <meta name="robots" content="noindex" />
 
       <main className="min-h-screen px-6 py-12 sm:px-12 sm:py-16 max-w-4xl mx-auto">
-        <Link to="/" className="text-sm text-muted hover:text-ink70 transition-colors">← Tend</Link>
+        <div className="flex items-center justify-between">
+          <Link to="/" className="text-sm text-muted hover:text-ink70 transition-colors">← Tend</Link>
+          <Link to={`/garden/${gardenId}/map`} className="text-sm font-semibold text-seal hover:opacity-80 transition-opacity">Open map →</Link>
+        </div>
 
         {status === 'loading' && <p className="mt-10 text-sm text-muted">Loading the garden…</p>}
         {status === 'missing' && <p className="mt-10 text-sm text-muted">No garden found for “{gardenId}”.</p>}

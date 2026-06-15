@@ -6,9 +6,32 @@ Architect so the renderer sits behind a **swappable interface**, and build the
 **camera + gesture + semantic-zoom skeleton first** — that "feel" is the hero
 and is largely renderer-independent.
 
-> Status: **not yet decided.** Do not commit a renderer without Charlie's
-> sign-off. This doc gets fleshed out and a recommendation added when we reach
-> the Phase 2 spike.
+> Status: **spike run; awaiting Charlie's sign-off.** The camera/gesture/LOD
+> skeleton is built behind `MapRendererProps`, with **SVG as the first
+> candidate** wired to the real seeded garden. Recommendation below — not yet
+> committed.
+
+## Spike results (2026-06-14)
+
+Built: a renderer-independent camera (`@use-gesture` + `@react-spring`) with
+zoom-to-cursor, clamping, and 3-level LOD; an `SvgRenderer` candidate; drag-to-
+place beds (persisted to Dexie); DOM overlay controls + keyboard. Verified by
+screenshot at garden / zone / bed LOD.
+
+**SVG candidate — findings**
+- ✅ Semantic zoom reads naturally (garden → zone regions → beds → plants+live state).
+- ✅ Crisp vector text/strokes at every zoom; styling straight from swiss/zen tokens.
+- ✅ DOM pointer events make drag-to-place and a11y trivial; overlays stay in the DOM.
+- ✅ Smooth at v1 scale (4 zones / 15 beds / ~30 plantings). No perf concern.
+- ⚠️ Watch item: world-space `<text>` scales with zoom (large at bed LOD). Fine now;
+  if it bothers, counter-scale labels or move them to a DOM overlay later.
+- ⚠️ Unknown ceiling: a garden with *hundreds* of plant nodes visible at bed LOD
+  could stress SVG; not a v1 concern.
+
+**Recommendation:** ship **SVG** for v1 — the scale is small, the feel is good,
+a11y + token styling are easiest, and the renderer stays behind the interface so
+Canvas/WebGL remains a drop-in swap if a future garden needs it. **Needs your
+sign-off before we build the rest of the map on it.**
 
 ## Candidates
 

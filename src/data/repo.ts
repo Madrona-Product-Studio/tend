@@ -27,3 +27,7 @@ export async function loadGardenTree(gardenId: ID): Promise<GardenTree | null> {
 export async function setTaskDone(taskId: ID, done: boolean): Promise<void> {
   await db.tasks.update(taskId, { done });
 }
+
+export async function setBedPosition(bedId: ID, position: { x: number; y: number }): Promise<void> {
+  await db.beds.update(bedId, { position });
+}
