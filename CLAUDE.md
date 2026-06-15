@@ -32,13 +32,17 @@ Rules:
 
 ---
 
-## The map is the hero
+## Navigation: levels × lenses (the connective tissue)
 
-Treat the garden map as a **lightweight design canvas** (Figma-lite), not a Google-Maps clone.
+Every level is its **own route**, and each shares one header (`@components/LevelChrome` — home leaf + breadcrumb + lens switch + actions). This consistency is the point; don't reintroduce per-screen bespoke nav.
 
-- **Discrete level-of-detail (NOT free zoom):** navigation is **three fixed levels** with animated transitions — Garden (overview / hero) → Zone (beds resolve) → Bed (plants, design, irrigation, reservoir level). Tap to drill in; breadcrumb / Back / Esc / tap-empty-space to step out. Continuous pan/pinch zoom was tried and rejected (hard to navigate). See the three-pane model in `docs/map-renderer-decision.md`.
-- **Spatially true:** beds sit in their real relative positions/orientation. To-scale (measured footprint) is a later pass; topological-first for v1. Drag-to-place ("arrange" mode) is deferred; the scene auto-layouts for now.
-- **Renderer = SVG (decided 2026-06-14).** It sits behind a swappable `MapRendererProps` interface (a Konva/Canvas spike validated the swap, then was removed to keep the PWA lean). The camera (`@use-gesture/react` + `@react-spring/web`) frames the focused element. Rationale + the Konva comparison are in **docs/map-renderer-decision.md**.
+- **Levels = routes:** `/garden/:id` → `/garden/:id/zone/:zoneId` → `/garden/:id/bed/:bedId`, with a **Planting** detail panel inside the bed. All linkable; browser-back works.
+- **Two lenses at every level — `Map` | `List`** (URL-driven via `?lens=`, see `useLens`):
+  - **Map** = the spatial/visual view. Garden & Zone use `@components/SpatialLens` (a static viewBox-fit SVG of zones / beds — tap to drill in). Bed's Map = its **row layout** (`BedShape`).
+  - **List** = the register. Garden = zones+beds; Zone = its beds + tasks; Bed = plantings + tasks + notes.
+- **Edit is a mode** on the Bed's Map lens (drag-drop rows via `@dnd-kit`); arranging zones/beds spatially is a later pass.
+- **Spatially true, topological-first:** beds auto-layout for now (no saved coordinates yet); to-scale + drag-to-place on the overview come later.
+- Renderer is **SVG/Vector**. (History: a continuous zoom canvas + a Konva spike were tried, then replaced by route-per-level — see `docs/map-renderer-decision.md`.)
 
 ---
 

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGarden } from '@/hooks/useGarden';
+import { useLens } from '@/hooks/useLens';
+import { LevelHeader } from '@components/LevelChrome';
 import {
   plantsInBed, bedSystems, bedRowsOf, tasksForBed, observationsForBed, observationsForPlant,
   CROP_LABEL, type Plant, type SystemRow,
@@ -13,7 +15,7 @@ import { EditableBedShape } from './EditableBedShape';
 export default function BedView() {
   const { gardenId = 'demo', bedId = '' } = useParams<{ gardenId: string; bedId: string }>();
   const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout } = useGarden(gardenId);
-  const [lens, setLens] = useState<'visual' | 'list'>('visual');
+  const [lens, setLens] = useLens('map');
   const [editing, setEditing] = useState(false);
   const [plantId, setPlantId] = useState<string | null>(null);
 
@@ -47,48 +49,32 @@ export default function BedView() {
       <meta name="robots" content="noindex" />
 
       <main className="min-h-screen max-w-5xl mx-auto px-6 py-10 sm:px-10">
-        {/* Breadcrumb + identity */}
-        <nav className="flex items-center gap-2 text-sm flex-wrap">
-          <Link to={`/garden/${gardenId}/map`} className="text-muted hover:text-ink70 transition-colors">Garden</Link>
-          <span className="text-faint">›</span>
-          <Link to={`/garden/${gardenId}`} className="text-muted hover:text-ink70 transition-colors">{zone?.name ?? 'Zone'}</Link>
-          <span className="text-faint">›</span>
-          <span className="font-semibold text-ink">{bed.name}</span>
-        </nav>
-
-        <header className="mt-5">
-          {bed.code && <div className="font-mono text-[11px] tracking-[0.06em] text-seal">{bed.code}</div>}
-          <h1 className="mt-1 text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-ink">{bed.name}</h1>
-          <p className="mt-2 text-sm text-clay">
-            {[bed.typeDetail, bed.exposure, bed.category].filter(Boolean).join(' · ')}
-          </p>
-        </header>
-
-        {/* Lens toggle */}
-        <div className="mt-6 inline-flex rounded-card border border-line overflow-hidden text-[12px] font-semibold">
-          {(['visual', 'list'] as const).map((id) => (
-            <button key={id} type="button" onClick={() => setLens(id)} aria-pressed={lens === id}
-              className={`px-4 py-2 transition-colors ${lens === id ? 'bg-ink text-card' : 'text-muted hover:text-ink70'}`}>
-              {id === 'visual' ? 'Visual' : 'List'}
+        <LevelHeader
+          crumbs={[
+            { label: tree.garden.name, to: `/garden/${gardenId}` },
+            { label: zone?.name ?? 'Zone', to: `/garden/${gardenId}/zone/${bed.zoneId}` },
+          ]}
+          code={bed.code}
+          title={bed.name}
+          meta={[bed.typeDetail, bed.exposure, bed.category].filter(Boolean).join(' · ')}
+          lens={lens} onLens={setLens}
+          actions={lens === 'map' ? (
+            <button type="button" onClick={() => { setEditing((v) => !v); setPlantId(null); }}
+              className={`rounded-card px-3 py-2 text-[12px] font-semibold transition-colors ${editing ? 'bg-ink text-card' : 'border border-line text-ink70 hover:border-ink70'}`}>
+              {editing ? 'Done' : 'Edit'}
             </button>
-          ))}
-        </div>
+          ) : null}
+        />
 
         <div className="mt-6 lg:flex lg:gap-8 lg:items-start">
           <div className="flex-1 min-w-0">
-            {lens === 'visual' ? (
+            {lens === 'map' ? (
               <section className="rounded-card bg-card border border-line p-5 sm:p-7">
                 <div className="flex items-baseline justify-between gap-3">
                   <Label className="text-clay">Plantings · {plants.length}</Label>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
-                      {layout.rows} {layout.rows === 1 ? 'row' : 'rows'}{layout.sideBySide ? ' · side by side' : ''}
-                    </span>
-                    <button type="button" onClick={() => { setEditing((v) => !v); setPlantId(null); }}
-                      className={`rounded-card px-3 py-1 text-[12px] font-semibold transition-colors ${editing ? 'bg-ink text-card' : 'border border-line text-ink70 hover:border-ink70'}`}>
-                      {editing ? 'Done' : 'Edit'}
-                    </button>
-                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
+                    {layout.rows} {layout.rows === 1 ? 'row' : 'rows'}{layout.sideBySide ? ' · side by side' : ''}
+                  </span>
                 </div>
                 {editing
                   ? <EditableBedShape
