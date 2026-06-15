@@ -62,3 +62,11 @@ export async function insertBed(bed: Bed): Promise<void> {
 export async function saveBedGeometry(bedId: ID, footprint: Rect, shape?: BedShape): Promise<void> {
   await db.beds.update(bedId, shape ? { footprint, shape } : { footprint });
 }
+
+export async function renameZone(zoneId: ID, name: string): Promise<void> {
+  await db.zones.update(zoneId, { name });
+}
+
+export async function renameBed(bedId: ID, name: string): Promise<void> {
+  await db.beds.update(bedId, { name });
+}

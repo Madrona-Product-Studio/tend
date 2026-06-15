@@ -14,7 +14,7 @@ import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
   const { gardenId = 'demo', bedId = '' } = useParams<{ gardenId: string; bedId: string }>();
-  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout } = useGarden(gardenId);
+  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const [editing, setEditing] = useState(false);
   const [plantId, setPlantId] = useState<string | null>(null);
@@ -56,6 +56,7 @@ export default function BedView() {
           ]}
           code={bed.code}
           title={bed.name}
+          onRename={(name) => renameBed(bed.id, name)}
           meta={[bed.typeDetail, bed.exposure, bed.category].filter(Boolean).join(' · ')}
           lens={lens} onLens={setLens}
           actions={lens === 'map' ? (

@@ -12,7 +12,7 @@ import { Label, Breath } from '@design/primitives';
 
 export default function ZoneView() {
   const { gardenId = 'demo', zoneId = '' } = useParams<{ gardenId: string; zoneId: string }>();
-  const { tree, status, addBed, setBedGeometry } = useGarden(gardenId);
+  const { tree, status, addBed, setBedGeometry, renameZone } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
@@ -40,6 +40,7 @@ export default function ZoneView() {
         <LevelHeader
           crumbs={[{ label: tree.garden.name, to: `/garden/${gardenId}` }]}
           title={zone.name}
+          onRename={(name) => renameZone(zone.id, name)}
           meta={[zone.sunExposure ? SUN_LABEL[zone.sunExposure] : null, zone.description].filter(Boolean).join(' · ')}
           lens={lens} onLens={setLens}
           actions={lens === 'map' ? (

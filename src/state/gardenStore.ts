@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Bed, BedLayout, BedShape, GardenTree, ID, Plant, Rect } from '@/domain';
 import {
   loadGardenTree, setTaskDone, savePlantArrangement, insertPlant, deletePlant, saveBedLayout, insertBed, saveBedGeometry,
+  renameZone, renameBed,
 } from '@/data/repo';
 import { seedIfEmpty } from '@/data/seed';
 
@@ -18,6 +19,8 @@ interface GardenStore {
   setBedLayout: (bedId: ID, layout: BedLayout) => Promise<void>;
   addBed: (bed: Bed) => Promise<void>;
   setBedGeometry: (bedId: ID, footprint: Rect, shape?: BedShape) => Promise<void>;
+  renameZone: (zoneId: ID, name: string) => Promise<void>;
+  renameBed: (bedId: ID, name: string) => Promise<void>;
 }
 
 export const useGardenStore = create<GardenStore>((set, get) => ({
@@ -100,5 +103,19 @@ export const useGardenStore = create<GardenStore>((set, get) => ({
     if (!tree) return;
     set({ tree: { ...tree, beds: tree.beds.map((b) => (b.id === bedId ? { ...b, footprint, ...(shape ? { shape } : {}) } : b)) } });
     await saveBedGeometry(bedId, footprint, shape);
+  },
+
+  renameZone: async (zoneId, name) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, zones: tree.zones.map((z) => (z.id === zoneId ? { ...z, name } : z)) } });
+    await renameZone(zoneId, name);
+  },
+
+  renameBed: async (bedId, name) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, beds: tree.beds.map((b) => (b.id === bedId ? { ...b, name } : b)) } });
+    await renameBed(bedId, name);
   },
 }));
