@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import type { BedLayout, GardenTree, ID, Plant } from '@/domain';
+import type { Bed, BedLayout, GardenTree, ID, Plant } from '@/domain';
 import {
-  loadGardenTree, setTaskDone, savePlantArrangement, insertPlant, deletePlant, saveBedLayout,
+  loadGardenTree, setTaskDone, savePlantArrangement, insertPlant, deletePlant, saveBedLayout, insertBed,
 } from '@/data/repo';
 import { seedIfEmpty } from '@/data/seed';
 
@@ -16,6 +16,7 @@ interface GardenStore {
   addPlant: (plant: Plant) => Promise<void>;
   removePlant: (plantId: ID) => Promise<void>;
   setBedLayout: (bedId: ID, layout: BedLayout) => Promise<void>;
+  addBed: (bed: Bed) => Promise<void>;
 }
 
 export const useGardenStore = create<GardenStore>((set, get) => ({
@@ -84,5 +85,12 @@ export const useGardenStore = create<GardenStore>((set, get) => ({
     if (!tree) return;
     set({ tree: { ...tree, beds: tree.beds.map((b) => (b.id === bedId ? { ...b, layout } : b)) } });
     await saveBedLayout(bedId, layout);
+  },
+
+  addBed: async (bed) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, beds: [...tree.beds, bed] } });
+    await insertBed(bed);
   },
 }));

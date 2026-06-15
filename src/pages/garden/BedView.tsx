@@ -57,7 +57,7 @@ export default function BedView() {
         </nav>
 
         <header className="mt-5">
-          <div className="font-mono text-[11px] tracking-[0.06em] text-seal">{bed.code}</div>
+          {bed.code && <div className="font-mono text-[11px] tracking-[0.06em] text-seal">{bed.code}</div>}
           <h1 className="mt-1 text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-ink">{bed.name}</h1>
           <p className="mt-2 text-sm text-clay">
             {[bed.typeDetail, bed.exposure, bed.category].filter(Boolean).join(' · ')}
@@ -254,7 +254,7 @@ function PlantingPanel({ bed, planting, notes, onClose }: {
                  lg:static lg:z-auto lg:max-h-none lg:w-[340px] lg:shrink-0 lg:sticky lg:top-10 lg:rounded-card lg:border">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-mono text-[11px] text-seal">{bed.code} · planting</div>
+          <div className="font-mono text-[11px] text-seal">{bed.code ? `${bed.code} · planting` : 'Planting'}</div>
           <h2 className="mt-1 text-xl font-bold tracking-[-0.02em] text-ink">{planting.name}{planting.variety ? ` ${planting.variety}` : ''}</h2>
         </div>
         <button type="button" onClick={onClose} aria-label="Close" className="text-muted hover:text-ink text-lg leading-none">✕</button>

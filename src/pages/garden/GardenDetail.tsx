@@ -1,4 +1,5 @@
-import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useGarden } from '@/hooks/useGarden';
 import { Label, Breath, Hairline, Marker, Mark } from '@design/primitives';
 import { T } from '@design/tokens';
@@ -6,6 +7,7 @@ import {
   bedsInZone, plantsInBed, equipmentForBed, BED_TYPE_LABEL, SUN_LABEL,
   type Bed, type GardenTree, type Zone,
 } from '@/domain';
+import { NewBedDialog } from './NewBedDialog';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -70,7 +72,7 @@ function BedCard({ tree, bed, gardenId }: { tree: GardenTree; bed: Bed; gardenId
   );
 }
 
-function ZoneSection({ tree, zone, index, total, gardenId }: { tree: GardenTree; zone: Zone; index: number; total: number; gardenId: string }) {
+function ZoneSection({ tree, zone, index, total, gardenId, onAddBed }: { tree: GardenTree; zone: Zone; index: number; total: number; gardenId: string; onAddBed: (zone: Zone) => void }) {
   const beds = bedsInZone(tree, zone.id);
   return (
     <section className="mb-12">
@@ -83,6 +85,10 @@ function ZoneSection({ tree, zone, index, total, gardenId }: { tree: GardenTree;
       <Hairline className="mt-5 mb-6" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {beds.map((b) => <BedCard key={b.id} tree={tree} bed={b} gardenId={gardenId} />)}
+        <button type="button" onClick={() => onAddBed(zone)}
+          className="rounded-card border border-dashed border-line p-4 text-left text-[14px] font-semibold text-muted hover:border-ink70 hover:text-ink70 transition-colors min-h-[88px]">
+          + Build a bed
+        </button>
       </div>
     </section>
   );
@@ -118,7 +124,9 @@ function PunchList({ tree, onToggle }: { tree: GardenTree; onToggle: (id: string
 
 export default function GardenDetail() {
   const { gardenId = 'demo' } = useParams<{ gardenId: string }>();
-  const { tree, status, toggleTask } = useGarden(gardenId);
+  const { tree, status, toggleTask, addBed } = useGarden(gardenId);
+  const navigate = useNavigate();
+  const [addingZone, setAddingZone] = useState<Zone | null>(null);
 
   return (
     <>
@@ -148,17 +156,25 @@ export default function GardenDetail() {
             </header>
 
             {tree.zones.map((z, i) => (
-              <ZoneSection key={z.id} tree={tree} zone={z} index={i + 1} total={tree.zones.length} gardenId={gardenId} />
+              <ZoneSection key={z.id} tree={tree} zone={z} index={i + 1} total={tree.zones.length} gardenId={gardenId} onAddBed={setAddingZone} />
             ))}
 
             <PunchList tree={tree} onToggle={toggleTask} />
 
             <p className="text-[13px] text-faint">
-              Loaded from local IndexedDB · seeded from the garden walkthrough. The semantic-zoom map renders this next.
+              Loaded from local IndexedDB · seeded from the garden walkthrough.
             </p>
           </>
         )}
       </main>
+
+      {addingZone && (
+        <NewBedDialog
+          zoneId={addingZone.id} zoneName={addingZone.name}
+          onClose={() => setAddingZone(null)}
+          onCreate={(bed) => { void addBed(bed); setAddingZone(null); navigate(`/garden/${gardenId}/bed/${bed.id}`); }}
+        />
+      )}
     </>
   );
 }
