@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGarden } from '@/hooks/useGarden';
 import {
-  plantsInBed, bedSystems, tasksForBed, observationsForBed, observationsForPlant,
+  plantsInBed, bedSystems, bedRowsOf, tasksForBed, observationsForBed, observationsForPlant,
   CROP_LABEL, type Plant, type SystemRow,
 } from '@/domain';
 import { CROP_DOT } from '@design/cropColors';
@@ -34,6 +34,7 @@ export default function BedView() {
   const systems = bedSystems(tree, bed.id);
   const reservoir = bed.state?.reservoirLevel;
   const otherSystems = systems.filter((s) => s.kind !== 'reservoir');
+  const { layout, rows } = bedRowsOf(plants, bed.layout);
   const tasks = tasksForBed(tree, bed.id);
   const notes = observationsForBed(tree, bed.id);
   const planting = plantId ? plants.find((p) => p.id === plantId) ?? null : null;
@@ -75,12 +76,13 @@ export default function BedView() {
           <div className="flex-1 min-w-0">
             {lens === 'visual' ? (
               <section className="rounded-card bg-card border border-line p-5 sm:p-7">
-                <Label className="text-clay">Plantings · {plants.length}</Label>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {plants.map((p) => (
-                    <PlantNode key={p.id} plant={p} selected={p.id === plantId} onClick={() => setPlantId(p.id)} />
-                  ))}
+                <div className="flex items-baseline justify-between gap-3">
+                  <Label className="text-clay">Plantings · {plants.length}</Label>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
+                    {layout.rows} {layout.rows === 1 ? 'row' : 'rows'}{layout.sideBySide ? ' · side by side' : ''}
+                  </span>
                 </div>
+                <BedShape rows={rows} sideBySide={!!layout.sideBySide} selectedId={plantId} onSelect={setPlantId} />
 
                 {(typeof reservoir === 'number' || otherSystems.length > 0) && (
                   <>
@@ -138,16 +140,54 @@ export default function BedView() {
 }
 
 function PlantNode({ plant, selected, onClick }: { plant: Plant; selected: boolean; onClick: () => void }) {
-  const border = selected ? 'border-ink bg-paper' : plant.issue ? 'border-seal/40 hover:border-seal' : 'border-line hover:border-ink70';
+  const border = selected ? 'border-ink bg-paper' : plant.issue ? 'border-seal/40 bg-card hover:border-seal' : 'border-line bg-card hover:border-ink70';
   return (
     <button type="button" onClick={onClick} aria-pressed={selected}
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors ${border}`}>
+      className={`flex items-center gap-2 max-w-full rounded-3xl border px-3 py-1.5 text-left transition-colors ${border}`}>
       <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: CROP_DOT[plant.attributes.cropCategory] }} />
-      <span className="text-[13px] font-medium text-ink">{plant.name}{plant.variety ? ` ${plant.variety}` : ''}</span>
-      {plant.issue
-        ? <span className="text-[11px] font-semibold text-seal">{plant.issue}</span>
-        : plant.note && <span className="text-[11px] text-muted">{plant.note}</span>}
+      <span className="min-w-0 text-[13px] font-medium text-ink leading-snug">
+        {plant.name}
+        {plant.variety && <span className="font-normal text-muted"> {plant.variety}</span>}
+        {plant.issue && <span className="font-semibold text-seal"> · {plant.issue}</span>}
+        {!plant.issue && plant.note && <span className="text-muted"> · {plant.note}</span>}
+      </span>
     </button>
+  );
+}
+
+// The bed rendered as a shape: a framed plot with the plantings arranged in rows
+// (stacked, or side by side per the bed's layout config).
+function BedShape({ rows, sideBySide, selectedId, onSelect }: {
+  rows: Plant[][]; sideBySide: boolean; selectedId: string | null; onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="mt-4 rounded-xl border-2 border-line p-3 sm:p-4" style={{ background: 'var(--color-bg)' }}>
+      <div className={sideBySide ? 'flex' : 'flex flex-col'}>
+        {rows.map((row, i) => (
+          <Lane key={i} index={i} plants={row} vertical={sideBySide} last={i === rows.length - 1}
+            selectedId={selectedId} onSelect={onSelect} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Lane({ index, plants, vertical, last, selectedId, onSelect }: {
+  index: number; plants: Plant[]; vertical: boolean; last: boolean; selectedId: string | null; onSelect: (id: string) => void;
+}) {
+  const frame = vertical
+    ? `flex-1 min-w-0 px-3 first:pl-1 last:pr-1 ${last ? '' : 'border-r border-line-soft'}`
+    : `py-3 first:pt-1 last:pb-1 ${last ? '' : 'border-b border-line-soft'}`;
+  return (
+    <div className={frame}>
+      <div className="mb-2.5"><span className="text-[9px] font-bold uppercase tracking-[0.18em] text-faint">Row {index + 1}</span></div>
+      <div className={vertical ? 'flex flex-col gap-2 items-start' : 'flex flex-wrap gap-2'}>
+        {plants.map((p) => (
+          <PlantNode key={p.id} plant={p} selected={p.id === selectedId} onClick={() => onSelect(p.id)} />
+        ))}
+        {plants.length === 0 && <span className="text-[11px] italic text-faint">empty</span>}
+      </div>
+    </div>
   );
 }
 

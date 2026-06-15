@@ -68,6 +68,14 @@ export interface BedState {
   irrigationOn?: boolean;
 }
 
+/** How a bed's plantings are arranged. Rows are the default model; `kind` leaves
+ *  room for other configurations (grid, greenhouse structure, freeform) later. */
+export interface BedLayout {
+  kind: 'rows';
+  rows: number;
+  sideBySide?: boolean;   // rows placed side by side (vs. stacked)
+}
+
 export interface Bed extends Placement {
   id: ID;
   zoneId: ID;
@@ -78,6 +86,7 @@ export interface Bed extends Placement {
   category?: string;      // crop grouping label, e.g. "Brassicas & roots"
   exposure?: string;      // freeform, e.g. "Full sun · hot"
   structures?: string[];  // non-movable fixtures (e.g. trellis)
+  layout?: BedLayout;     // how plantings are arranged; defaults to rows
   widthFt?: number;
   lengthFt?: number;
   soilNotes?: string;
@@ -101,6 +110,7 @@ export interface Plant {
   name: string;        // common name, e.g. "Tomato"
   variety?: string;    // cultivar, e.g. "San Marzano"
   datePlanted?: number;
+  row?: number;        // 0-based row index within the bed's layout (optional; auto-distributed if unset)
   attributes: PlantAttributes;
   note?: string;       // neutral note, e.g. "transplanted", "volunteer"
   issue?: string;      // a problem flag, e.g. "bolted", "mold", "failed"

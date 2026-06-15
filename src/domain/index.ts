@@ -1,7 +1,7 @@
 // Public surface of the domain core: types + pure selectors/labels.
 export * from './types';
 
-import type { BedType, CropCategory, GardenTree, ID, SunExposure } from './types';
+import type { BedLayout, BedType, CropCategory, GardenTree, ID, Plant, SunExposure } from './types';
 
 // ── Display labels (UI-facing, but pure & dependency-free) ─────────────────────
 
@@ -46,6 +46,29 @@ export const observationsForPlant = (t: GardenTree, plantId: ID) => t.observatio
  *  first-class equipment + bed state + fixtures. */
 export type SystemKind = 'reservoir' | 'irrigation' | 'cover' | 'sensor' | 'trellis';
 export interface SystemRow { kind: SystemKind; label: string; on?: boolean }
+
+// ── Bed layout (row-based; configurable) ───────────────────────────────────────
+
+/** A sensible default row layout when a bed hasn't been configured. */
+export function defaultLayout(plantCount: number): BedLayout {
+  const rows = plantCount <= 4 ? 1 : plantCount <= 10 ? 2 : 3;
+  return { kind: 'rows', rows, sideBySide: false };
+}
+
+/** Distribute a bed's plantings into rows. Honors explicit `plant.row` if any
+ *  plant has it; otherwise fills rows sequentially and evenly. */
+export function bedRowsOf(plants: Plant[], layout?: BedLayout): { layout: BedLayout; rows: Plant[][] } {
+  const lay = layout ?? defaultLayout(plants.length);
+  const rows: Plant[][] = Array.from({ length: Math.max(1, lay.rows) }, () => []);
+  const hasExplicit = plants.some((p) => typeof p.row === 'number');
+  if (hasExplicit) {
+    plants.forEach((p) => { rows[Math.min(rows.length - 1, Math.max(0, p.row ?? 0))]!.push(p); });
+  } else {
+    const perRow = Math.ceil(plants.length / rows.length);
+    plants.forEach((p, i) => { rows[Math.min(rows.length - 1, Math.floor(i / perRow))]!.push(p); });
+  }
+  return { layout: lay, rows };
+}
 
 export function bedSystems(t: GardenTree, bedId: ID): SystemRow[] {
   const { covers, sensors, irrigation } = equipmentForBed(t, bedId);
