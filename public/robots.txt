@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /garden/
+Disallow: /styleguide
+
+Sitemap: https://tend.app/sitemap.xml

@@ -1,27 +1,64 @@
-# CLAUDE.md
+# Tend — Claude Code project guide
 
-## What this is
-Tend is a web app for home gardeners to map and manage their food gardens — vegetables, fruits, herbs. Users create gardens, define zones and beds, track what's planted, and log tending activity (watering, fertilizing, harvesting).
+Tend helps home gardeners and small hobby farms **map, organize, and improve their gardens year over year**. The hero is a beautiful, spatially-true, semantic-zoom **map** of the garden — zones, beds, plants, and the systems (irrigation, covers, sensors) that serve them.
+
+**v1 scope:** map-first, manual/guided entry, a single garden. Bed types, a simple irrigation representation, per-bed notes/tasks. (Voice→structure ingestion is v1.5; recommendations come later.)
+
+---
+
+## Design: the style guide is law
+
+The Swiss style guide is the **single source of truth** for all visual design.
+
+@design/swiss-style-guide.md
+
+Rules:
+- **Read the style guide before building or changing any UI.** Use its tokens for color, type, spacing, radii, and shadows.
+- **Never hardcode a value that exists as a token.** Reference the token. If a value you need is missing, propose an addition consistent with the guide and ask before inventing one.
+- **Honor Swiss / International principles:** strict grid, clear typographic hierarchy, generous whitespace, restraint, precision, flat tactile surfaces. No decorative noise.
+- **Mobile-first and responsive.** It must feel native on a phone (touch targets, gestures) *and* render beautifully on desktop.
+- Prefer accessible, semantic markup; the design system's polish should never come at the cost of contrast, focus states, or keyboard use.
+
+---
 
 ## Stack
-- React + Vite 6
-- Tailwind CSS v4 (`@tailwindcss/vite` plugin)
-- Supabase (auth + database)
-- react-router-dom v6
-- Deployed on Vercel
 
-## Path aliases
-`@components`, `@pages`, `@data`, `@services`, `@hooks`, `@utils` all resolve to their `src/` subdirectory.
+- **App:** Vite + React + TypeScript (strict mode).
+- **Styling:** Tailwind + shadcn/ui, driven by the style-guide tokens.
+- **State:** Zustand.
+- **Storage:** local-first via Dexie/IndexedDB. Do **not** add a backend in v1. Supabase slots in at v1.5 for accounts/sync/photos.
+- **Offline:** ship as an installable PWA (vite-plugin-pwa); the app must work offline (gardens have poor signal).
+- **Deploy:** Vercel.
 
-## Data model (planned)
-- **Gardens** — top-level container (a user's property or plot)
-- **Zones** — named areas within a garden (e.g. "Back raised beds", "Orchard corner")
-- **Beds** — individual planting areas within a zone, with type (raised/in-ground/container), dimensions, soil notes
-- **Plantings** — what's in a bed: plant variety, date planted, expected harvest window
-- **Tend logs** — activity records: watering, fertilizing, pruning, harvesting
+---
 
-## Env vars
-Copy `.env.example` → `.env` and fill in Supabase credentials.
+## The map is the hero
 
-## Dev
-`npm run dev`
+Treat the garden map as a **lightweight design canvas** (Figma-lite), not a Google-Maps clone.
+
+- **Semantic zoom (level-of-detail):** one canvas; detail resolves as you zoom — Garden (all zones) → Zone (beds appear) → Bed (plants, design, irrigation, live state).
+- **Spatially true:** beds sit in their real relative positions/orientation. To-scale (measured footprint) is a later pass; topological-first for v1.
+- **Renderer = OPEN DECISION. Do not choose it unilaterally.** Architect so the renderer sits behind a swappable interface. Build the **camera + gesture + semantic-zoom skeleton first** — that "feel" is the hero and is largely renderer-independent. Candidate pieces: `@use-gesture/react` + a spring/motion lib for pan/zoom/drag; an SVG or Canvas base with optional WebGL/WebGPU flourishes where they earn their place. **Flag this for human sign-off before committing to a renderer.** Candidates, tradeoffs, and how to run the spike are in **docs/map-renderer-decision.md** — read it when you reach this decision.
+
+---
+
+## Domain model (keep explicit in types)
+
+`Garden → Zone → Bed → Plant`, plus cross-cutting first-class objects:
+- **Bed types:** Vigo wicking (+reservoir/level indicator), Vigo non-wicking, aluminum raised, greenhouse, container, in-ground.
+- **Movable equipment** (limited, reassigned between beds, à la Sonos): covers (heat vs mesh/shade), sensors (temp/humidity), irrigation nodes.
+- **Irrigation as a network with state** (hose → nodes → per-bed switch → emitters/misters), not a boolean.
+- **Plant attributes that drive future recommendations:** crop category, pollination-required, season, soil-temp need, bolting risk, soil-depth need, variety.
+
+Full product context + the parsed garden inventory: **docs/tend-brief.md** (read when you need domain detail).
+
+---
+
+## Working conventions
+
+- Functional components and hooks; TypeScript strict; no `any` without a comment justifying it.
+- **Build in small, verifiable increments.** Before a new feature, restate the plan in 3–5 steps and confirm before writing code.
+- After changes, run typecheck + lint + build; keep the app green.
+- Accessibility is non-negotiable: semantic HTML, labels, focus management, keyboard support. Map-overlay controls (labels, popovers, buttons) should live in the DOM/SVG layer, not be trapped in a canvas.
+- Keep the domain model in a typed core that's independent of the renderer and the storage layer.
+- When a decision changes, update this file and `docs/tend-brief.md`.

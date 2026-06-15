@@ -1,22 +1,48 @@
 @import "tailwindcss";
 
+/* ════════════════════════════════════════════════════════════════════════════
+   swiss/zen design tokens — the single source of truth for color & type.
+   Ported from the studio's swiss/zen system (lilatravel/src/design/tokens.jsx).
+   Tailwind v4 reads @theme and generates utilities (bg-paper, text-ink,
+   border-line, rounded-card, …). Never hardcode a value that exists here.
+   ════════════════════════════════════════════════════════════════════════════ */
 @theme {
-  --color-soil: #3d2b1f;
-  --color-bark: #5c3d2e;
-  --color-clay: #a0522d;
-  --color-moss: #4a7c59;
-  --color-fern: #6b9e6b;
-  --color-sage: #8fad88;
-  --color-harvest: #c8873a;
-  --color-straw: #e8d5a3;
-  --color-cream: #f7f3ec;
-  --color-parchment: #ede8df;
-  --color-stone: #c4b9aa;
-  --color-ink: #1c1410;
+  /* Grounds — warm paper, layered lightest→page */
+  --color-card:  #ffffff;   /* lightest surface (cards) */
+  --color-paper: #fdfcfa;   /* section / panel ground */
+  --color-bg:    #f5f1ea;   /* page ground */
 
-  --font-body: 'Inter', sans-serif;
-  --font-display: 'Fraunces', serif;
+  /* Ink scale */
+  --color-ink:   #1a1714;
+  --color-ink70: #403a33;
+  --color-clay:  #6f6657;   /* secondary text, breath lines */
+  --color-muted: #8c8378;   /* labels, captions */
+  --color-faint: #b8b0a2;
+
+  /* Accents — restraint: one true accent + one live indicator */
+  --color-seal: #b23a2e;    /* the one accent — sumi red */
+  --color-live: #3a7d7b;    /* calm teal — live / "right now" state */
+
+  /* Hairlines */
+  --color-line:      rgba(26, 23, 20, 0.14);
+  --color-line-soft: rgba(26, 23, 20, 0.08);
+
+  /* Type */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Radii */
+  --radius-card: 10px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; background: #f7f3ec; color: #1c1410; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}

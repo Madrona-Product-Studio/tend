@@ -1,0 +1,41 @@
+import { Link } from 'react-router-dom';
+import { Mark } from '@design/primitives';
+import { T } from '@design/tokens';
+
+export default function Home() {
+  return (
+    <>
+      {/* React 19 native document metadata (hoisted to <head>) */}
+      <title>Tend — map and manage your garden</title>
+      <meta
+        name="description"
+        content="A beautiful, spatially-true map of your food garden — zones, beds, plants, and the systems that serve them."
+      />
+      <link rel="canonical" href="https://tend.app/" />
+
+      <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
+        <Mark id="leaf" size={56} color={T.seal} sw={2.2} />
+        <h1 className="mt-6 text-5xl sm:text-7xl font-bold tracking-[-0.035em] text-ink leading-none">
+          Tend
+        </h1>
+        <p className="mt-4 max-w-md text-clay text-[17px] sm:text-xl leading-[1.5]">
+          Map, organize, and improve your food garden — year over year.
+        </p>
+        <div className="mt-9 flex items-center gap-3">
+          <Link
+            to="/garden/demo"
+            className="inline-flex items-center rounded-card bg-seal px-5 py-2.5 text-sm font-semibold text-card transition-opacity hover:opacity-90"
+          >
+            Open the garden
+          </Link>
+          <Link
+            to="/styleguide"
+            className="inline-flex items-center rounded-card border border-line px-5 py-2.5 text-sm font-semibold text-ink70 transition-colors hover:border-ink70"
+          >
+            Style guide
+          </Link>
+        </div>
+      </main>
+    </>
+  );
+}
