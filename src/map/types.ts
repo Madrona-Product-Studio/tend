@@ -41,14 +41,19 @@ export interface Scene {
   tree: GardenTree;   // for plant/equipment detail at bed LOD
 }
 
-/** What every concrete renderer receives. */
+/** What every concrete renderer receives. Renderer-agnostic: SVG and Canvas
+ *  both consume this. The renderer owns its surface and applies `camera`. */
 export interface MapRendererProps {
   scene: Scene;
   lod: Lod;
+  viewport: Size;
+  /** Plain-number camera (screen = world * s + x,y). Re-rendered per frame. */
+  camera: Camera;
   /** Move a bed by a world-space delta (live, during drag). */
   onMoveBed: (bedId: string, dxWorld: number, dyWorld: number) => void;
   /** Persist a bed's placement (on drag end). */
   onCommitBed: (bedId: string) => void;
-  /** Current camera scale — converts screen drag deltas to world units. */
-  getScale: () => number;
+  /** Tell the host a bed drag is in progress, so camera panning yields. */
+  onBedDragStart: () => void;
+  onBedDragEnd: () => void;
 }

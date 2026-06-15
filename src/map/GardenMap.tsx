@@ -1,10 +1,8 @@
 // Map host: owns scene state, measures the viewport, drives the camera, and
-// renders a concrete renderer inside the camera transform. Overlay controls live
-// in the DOM (accessible), never inside the SVG. The renderer is swappable here —
-// change one import to evaluate a different candidate.
-import { animated, to } from '@react-spring/web';
+// renders a swappable renderer inside it. Overlay controls live in the DOM
+// (accessible). The renderer toggle proves MapRendererProps is truly swappable.
 import { Link } from 'react-router-dom';
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type ComponentType, type KeyboardEvent } from 'react';
 import type { GardenTree } from '@/domain';
 import { setBedPosition } from '@/data/repo';
 import { T } from '@design/tokens';
@@ -12,8 +10,15 @@ import { Mark } from '@design/primitives';
 import { buildScene } from './scene';
 import { useMapCamera } from './useMapCamera';
 import { SvgRenderer } from './SvgRenderer';
+import { KonvaRenderer } from './KonvaRenderer';
 import { LOD_LABEL } from './lod';
-import type { Scene, Size } from './types';
+import type { MapRendererProps, Scene, Size } from './types';
+
+type RendererId = 'svg' | 'konva';
+const RENDERERS: Record<RendererId, ComponentType<MapRendererProps>> = {
+  svg: SvgRenderer,
+  konva: KonvaRenderer,
+};
 
 export function GardenMap({ tree }: { tree: GardenTree }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -21,6 +26,9 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
   const [scene, setScene] = useState<Scene>(() => buildScene(tree));
   const sceneRef = useRef(scene);
   useEffect(() => { sceneRef.current = scene; }, [scene]);
+
+  const bedDragging = useRef(false);
+  const [rendererId, setRendererId] = useState<RendererId>('svg');
 
   useEffect(() => {
     const el = containerRef.current;
@@ -33,8 +41,8 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
     return () => ro.disconnect();
   }, []);
 
-  const { x, y, s, lod, fit, zoomIn, zoomOut, panBy, getScale } = useMapCamera({
-    containerRef, bounds: scene.bounds, viewport,
+  const { cam, lod, fit, zoomIn, zoomOut, panBy } = useMapCamera({
+    containerRef, bounds: scene.bounds, viewport, isBedDragging: bedDragging,
   });
 
   const moveBed = (bedId: string, dx: number, dy: number) =>
@@ -64,6 +72,8 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
     e.preventDefault();
   };
 
+  const Renderer = RENDERERS[rendererId];
+
   return (
     <div
       ref={containerRef}
@@ -73,13 +83,14 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
       className="relative w-full h-[100dvh] overflow-hidden touch-none select-none outline-none"
       style={{ background: T.bg, cursor: 'grab' }}
     >
-      <svg width={viewport.w} height={viewport.h} className="block">
-        <animated.g transform={to([x, y, s], (px, py, ps) => `translate(${px} ${py}) scale(${ps})`)}>
-          <SvgRenderer scene={scene} lod={lod} onMoveBed={moveBed} onCommitBed={commitBed} getScale={getScale} />
-        </animated.g>
-      </svg>
+      <Renderer
+        scene={scene} lod={lod} viewport={viewport} camera={cam}
+        onMoveBed={moveBed} onCommitBed={commitBed}
+        onBedDragStart={() => { bedDragging.current = true; }}
+        onBedDragEnd={() => { bedDragging.current = false; }}
+      />
 
-      {/* Top bar — DOM overlay */}
+      {/* Top bar */}
       <div className="absolute top-0 inset-x-0 p-4 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-3 pointer-events-auto">
           <Link to="/" className="rounded-card bg-card/90 backdrop-blur border border-line px-3 py-1.5 text-sm text-ink70 hover:border-ink70 transition-colors inline-flex items-center gap-2">
@@ -88,13 +99,24 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
           <span className="rounded-card bg-card/90 backdrop-blur border border-line px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-clay">
             {LOD_LABEL[lod]}
           </span>
+          <div className="inline-flex rounded-card bg-card/90 backdrop-blur border border-line overflow-hidden text-[12px] font-semibold">
+            {(['svg', 'konva'] as const).map((id) => (
+              <button
+                key={id} type="button" onClick={() => setRendererId(id)}
+                aria-pressed={rendererId === id}
+                className={`px-3 py-1.5 transition-colors ${rendererId === id ? 'bg-ink text-card' : 'text-muted hover:text-ink70'}`}
+              >
+                {id === 'svg' ? 'Vector' : 'Canvas'}
+              </button>
+            ))}
+          </div>
         </div>
         <Link to="/garden/demo" className="pointer-events-auto rounded-card bg-card/90 backdrop-blur border border-line px-3 py-1.5 text-sm text-ink70 hover:border-ink70 transition-colors">
           Details
         </Link>
       </div>
 
-      {/* Zoom controls — DOM overlay */}
+      {/* Zoom controls */}
       <div className="absolute bottom-5 right-5 flex flex-col gap-1.5">
         <CtrlButton label="Zoom in" onClick={zoomIn}>+</CtrlButton>
         <CtrlButton label="Zoom out" onClick={zoomOut}>−</CtrlButton>
@@ -103,7 +125,7 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
 
       <div className="absolute bottom-5 left-5 pointer-events-none">
         <span className="rounded-card bg-card/80 backdrop-blur border border-line px-3 py-1.5 text-[12px] text-muted">
-          Drag a bed to place it · scroll/pinch to zoom
+          Drag a bed to place it · scroll/pinch to zoom · {rendererId === 'svg' ? 'SVG' : 'Canvas'} renderer
         </span>
       </div>
     </div>
@@ -113,9 +135,7 @@ export function GardenMap({ tree }: { tree: GardenTree }) {
 function CtrlButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
+      type="button" aria-label={label} onClick={onClick}
       className="w-10 h-10 rounded-card bg-card/90 backdrop-blur border border-line text-ink text-lg leading-none hover:border-ink70 transition-colors flex items-center justify-center"
     >
       {children}
