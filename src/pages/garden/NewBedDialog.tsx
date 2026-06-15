@@ -17,6 +17,7 @@ function buildBed(preset: BedPreset, name: string, zoneId: string): Bed {
     widthFt: preset.widthFt,
     lengthFt: preset.lengthFt,
     layout: preset.layout,
+    footprint: { x: 8, y: 8, w: 56, h: 44 },  // default spot; arrange in the zone layout editor
     state: preset.hasReservoir ? { reservoirLevel: 1 } : undefined,
   };
 }

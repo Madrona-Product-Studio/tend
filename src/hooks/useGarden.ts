@@ -13,10 +13,11 @@ export function useGarden(gardenId: ID) {
   const removePlant = useGardenStore((s) => s.removePlant);
   const setBedLayout = useGardenStore((s) => s.setBedLayout);
   const addBed = useGardenStore((s) => s.addBed);
+  const setBedGeometry = useGardenStore((s) => s.setBedGeometry);
 
   useEffect(() => {
     void load(gardenId);
   }, [gardenId, load]);
 
-  return { tree, status, toggleTask, setPlantArrangement, addPlant, removePlant, setBedLayout, addBed };
+  return { tree, status, toggleTask, setPlantArrangement, addPlant, removePlant, setBedLayout, addBed, setBedGeometry };
 }

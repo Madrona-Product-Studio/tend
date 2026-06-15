@@ -1,7 +1,7 @@
 // Public surface of the domain core: types + pure selectors/labels.
 export * from './types';
 
-import type { BedLayout, BedType, CropCategory, GardenTree, ID, Plant, SunExposure } from './types';
+import type { Bed, BedLayout, BedShape, BedType, CropCategory, GardenTree, ID, Plant, Rect, SunExposure } from './types';
 
 // ── Display labels (UI-facing, but pure & dependency-free) ─────────────────────
 
@@ -69,6 +69,38 @@ export function bedRowsOf(plants: Plant[], layout?: BedLayout): { layout: BedLay
     plants.forEach((p, i) => { rows[Math.min(rows.length - 1, Math.floor(i / perRow))]!.push(p); });
   }
   return { layout: lay, rows };
+}
+
+// ── Zone diagram (spatial bed layout) ───────────────────────────────────────────
+
+export interface ZoneLayoutItem { id: ID; label: string; rect: Rect; shape: BedShape; accent: boolean }
+
+const bboxOf = (rects: Rect[]): Rect => {
+  if (!rects.length) return { x: 0, y: 0, w: 100, h: 60 };
+  const minX = Math.min(...rects.map((r) => r.x));
+  const minY = Math.min(...rects.map((r) => r.y));
+  const maxX = Math.max(...rects.map((r) => r.x + r.w));
+  const maxY = Math.max(...rects.map((r) => r.y + r.h));
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+};
+
+const bedAccent = (b: Bed) => typeof b.state?.reservoirLevel === 'number';
+
+/** Place a zone's beds for the diagram: honor each bed's footprint if every bed
+ *  has one; otherwise auto-arrange into a tidy wrapping row. */
+export function zoneLayout(beds: Bed[]): { items: ZoneLayoutItem[]; bounds: Rect } {
+  const allPlaced = beds.length > 0 && beds.every((b) => b.footprint);
+  let items: ZoneLayoutItem[];
+  if (allPlaced) {
+    items = beds.map((b) => ({ id: b.id, label: b.name, rect: b.footprint!, shape: b.shape ?? 'rect', accent: bedAccent(b) }));
+  } else {
+    const W = 64, H = 50, GAP = 16, COLS = 4;
+    items = beds.map((b, i) => ({
+      id: b.id, label: b.name, shape: b.shape ?? 'rect', accent: bedAccent(b),
+      rect: b.footprint ?? { x: (i % COLS) * (W + GAP), y: Math.floor(i / COLS) * (H + GAP), w: W, h: H },
+    }));
+  }
+  return { items, bounds: bboxOf(items.map((i) => i.rect)) };
 }
 
 export function bedSystems(t: GardenTree, bedId: ID): SystemRow[] {

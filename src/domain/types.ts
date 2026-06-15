@@ -11,6 +11,11 @@
 
 export type ID = string;
 
+export interface Rect { x: number; y: number; w: number; h: number }
+
+/** A bed's drawn shape in the zone diagram. */
+export type BedShape = 'rect' | 'ellipse';
+
 // ── Enums / unions ────────────────────────────────────────────────────────────
 
 export type BedType =
@@ -87,6 +92,8 @@ export interface Bed extends Placement {
   exposure?: string;      // freeform, e.g. "Full sun · hot"
   structures?: string[];  // non-movable fixtures (e.g. trellis)
   layout?: BedLayout;     // how plantings are arranged; defaults to rows
+  footprint?: Rect;       // bed position + size in the zone diagram (zone-local units)
+  shape?: BedShape;       // drawn shape in the zone diagram (default 'rect')
   widthFt?: number;
   lengthFt?: number;
   soilNotes?: string;

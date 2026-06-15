@@ -1,13 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useGarden } from '@/hooks/useGarden';
 import { useLens } from '@/hooks/useLens';
 import { LevelHeader } from '@components/LevelChrome';
-import { SpatialLens, type SpatialItem } from '@components/SpatialLens';
+import { ZoneDiagram } from '@components/ZoneDiagram';
 import { BedCard, AddBedCard } from '@components/BedCard';
 import { NewBedDialog } from './NewBedDialog';
-import { bedsInZone, SUN_LABEL, type GardenTree, type Zone } from '@/domain';
-import { buildScene } from '@/map/scene';
+import { bedsInZone, zoneLayout, SUN_LABEL, type GardenTree, type Zone } from '@/domain';
 import { Label, Breath, Hairline, Marker } from '@design/primitives';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -18,15 +17,10 @@ export default function GardenView() {
   const [lens, setLens] = useLens('map');
   const navigate = useNavigate();
   const [addingZone, setAddingZone] = useState<Zone | null>(null);
-  const scene = useMemo(() => (tree ? buildScene(tree) : null), [tree]);
 
-  if (status !== 'ready' || !tree || !scene) {
+  if (status !== 'ready' || !tree) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-muted">{status === 'error' ? 'Something went wrong.' : 'Loading the garden…'}</div>;
   }
-
-  const items: SpatialItem[] = scene.zones.map((z) => ({
-    id: z.id, label: z.zone.name, sublabel: z.zone.description, rect: z.rect,
-  }));
 
   return (
     <>
@@ -40,8 +34,25 @@ export default function GardenView() {
 
         <div className="mt-6">
           {lens === 'map' ? (
-            <SpatialLens bounds={scene.bounds} items={items} hint="Tap a zone to enter"
-              onSelect={(zid) => navigate(`/garden/${gardenId}/zone/${zid}`)} />
+            <div className="grid sm:grid-cols-2 gap-4">
+              {tree.zones.map((z) => {
+                const zb = bedsInZone(tree, z.id);
+                const { items, bounds } = zoneLayout(zb);
+                return (
+                  <Link key={z.id} to={`/garden/${gardenId}/zone/${z.id}`}
+                    className="block rounded-card bg-card border border-line p-4 hover:border-ink70 transition-colors">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h3 className="text-[15px] font-semibold text-ink">{z.name}</h3>
+                      <span className="text-[11px] text-muted shrink-0">{zb.length} beds</span>
+                    </div>
+                    {z.description && <div className="mt-0.5 text-[11px] text-muted">{z.description}</div>}
+                    <div className="mt-3 rounded-lg p-2" style={{ background: 'var(--color-bg)' }}>
+                      <ZoneDiagram items={items} bounds={bounds} mini maxHeight="130px" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           ) : (
             <>
               {tree.zones.map((z, i) => (

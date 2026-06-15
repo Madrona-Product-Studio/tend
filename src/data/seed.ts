@@ -12,7 +12,7 @@ import type {
 } from '@/domain';
 
 export const DEMO_GARDEN_ID = 'demo';
-const SEED_VERSION = 4; // bump to force a clean reseed in dev
+const SEED_VERSION = 5; // bump to force a clean reseed in dev
 const now = Date.now();
 
 // ── builders ──────────────────────────────────────────────────────────────────
@@ -42,15 +42,15 @@ const zones: Zone[] = [
 
 // ── Beds ──────────────────────────────────────────────────────────────────────
 const beds: Bed[] = [
-  B('b01', 'z1', 'Z1·B01', 'Wicking Bed', 'vigo-wicking', 'Vigo — wicking floor + reservoir', 'Full sun', 'Brassicas & roots', { state: { reservoirLevel: 0.8, irrigationOn: false } }),
-  B('b02', 'z1', 'Z1·B02', 'Trial Bed', 'vigo', 'Vigo raised — newest', 'Full sun', 'Fruiting (trial)', { structures: ['Trellis'], soilNotes: 'The former “cold plunge.” Fully experimental this season.' }),
-  B('b03', 'z1', 'Z1·B03', 'Berry & Potato', 'vigo', 'Vigo raised', 'Full sun', 'Mixed'),
-  B('b04', 'z1', 'Z1·B04', 'Peppers & Eggplant', 'vigo-wicking', 'Vigo — wicking floor', 'Full sun · hot', 'Fruiting', { state: { reservoirLevel: 0.6, irrigationOn: false }, layout: { kind: 'rows', rows: 2 } }),
-  B('b05', 'z1', 'Z1·B05', 'Front Tomato Bed', 'vigo', 'Vigo raised — large', 'Full sun', 'Fruiting'),
-  B('b06', 'z1', 'Z1·B06', 'Pea Bed', 'vigo', 'Vigo raised — no wicking', 'Full sun', 'Legumes'),
-  B('b07', 'z1', 'Z1·B07', 'Potato Bed', 'vigo', 'Vigo raised', 'Full sun', 'Roots'),
-  B('b08', 'z1', 'Z1·B08', 'She-shed Squash', 'vigo', 'Raised bed', 'Full sun', 'Squash & mixed'),
-  B('b09', 'z1', 'Z1·GH', 'Greenhouse', 'greenhouse', 'Greenhouse structure — 8×6', 'Warm', 'Fruiting', { widthFt: 8, lengthFt: 6 }),
+  B('b01', 'z1', 'Z1·B01', 'Wicking Bed', 'vigo-wicking', 'Vigo — wicking floor + reservoir', 'Full sun', 'Brassicas & roots', { state: { reservoirLevel: 0.8, irrigationOn: false }, footprint: { x: 14, y: 58, w: 30, h: 90 } }),
+  B('b02', 'z1', 'Z1·B02', 'Trial Bed', 'vigo', 'Vigo raised — newest', 'Full sun', 'Fruiting (trial)', { structures: ['Trellis'], soilNotes: 'The former “cold plunge.” Fully experimental this season.', footprint: { x: 14, y: 14, w: 28, h: 30 } }),
+  B('b03', 'z1', 'Z1·B03', 'Berry & Potato', 'vigo', 'Vigo raised', 'Full sun', 'Mixed', { footprint: { x: 50, y: 14, w: 34, h: 30 } }),
+  B('b04', 'z1', 'Z1·B04', 'Peppers & Eggplant', 'vigo-wicking', 'Vigo — wicking floor', 'Full sun · hot', 'Fruiting', { state: { reservoirLevel: 0.6, irrigationOn: false }, layout: { kind: 'rows', rows: 2 }, footprint: { x: 92, y: 10, w: 58, h: 34 } }),
+  B('b05', 'z1', 'Z1·B05', 'Front Tomato Bed', 'vigo', 'Vigo raised — large', 'Full sun', 'Fruiting', { footprint: { x: 54, y: 58, w: 92, h: 46 } }),
+  B('b06', 'z1', 'Z1·B06', 'Pea Bed', 'vigo', 'Vigo raised — no wicking', 'Full sun', 'Legumes', { footprint: { x: 158, y: 14, w: 30, h: 30 } }),
+  B('b07', 'z1', 'Z1·B07', 'Potato Bed', 'vigo', 'Vigo raised', 'Full sun', 'Roots', { footprint: { x: 196, y: 14, w: 30, h: 30 } }),
+  B('b08', 'z1', 'Z1·B08', 'She-shed Squash', 'vigo', 'Raised bed', 'Full sun', 'Squash & mixed', { footprint: { x: 54, y: 114, w: 60, h: 40 }, shape: 'ellipse' }),
+  B('b09', 'z1', 'Z1·GH', 'Greenhouse', 'greenhouse', 'Greenhouse structure — 8×6', 'Warm', 'Fruiting', { widthFt: 8, lengthFt: 6, footprint: { x: 158, y: 54, w: 86, h: 86 } }),
   B('b10', 'z2', 'Z2·B01', 'Brassica Bed A', 'aluminum-raised', 'Aluminum raised', 'Partial shade', 'Brassicas & roots'),
   B('b11', 'z2', 'Z2·B02', 'Brassica Bed B', 'aluminum-raised', 'Aluminum raised', 'Partial shade', 'Brassicas & roots'),
   B('b12', 'z3', 'Z3·B01', 'Herb Collection', 'container', 'Containers', 'Partial sun', 'Herbs'),
