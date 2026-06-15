@@ -6,10 +6,15 @@ Architect so the renderer sits behind a **swappable interface**, and build the
 **camera + gesture + semantic-zoom skeleton first** — that "feel" is the hero
 and is largely renderer-independent.
 
-> Status: **spike run; awaiting Charlie's sign-off.** The camera/gesture/LOD
-> skeleton is built behind `MapRendererProps`, with **SVG as the first
-> candidate** wired to the real seeded garden. Recommendation below — not yet
-> committed.
+> Status: **DECIDED — SVG (Vector), 2026-06-14.** Konva spike validated the
+> swappable interface, then removed to keep the PWA lean (precache 733→403 KiB).
+> Canvas remains a drop-in via `MapRendererProps` if a garden ever needs it.
+>
+> **Navigation model also decided:** *not* continuous pan/pinch zoom — that
+> tested badly ("expands way too far, hard to navigate"). Instead **three
+> discrete levels** with animated transitions: Garden (overview/hero) → Zone →
+> Bed (plants + reservoir level + emitter bar). Tap to drill in; breadcrumb /
+> Back / Esc / tap-empty-space to step out. Matches the docs three-pane diagram.
 
 ## Spike results (2026-06-14)
 

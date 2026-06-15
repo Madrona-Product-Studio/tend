@@ -36,9 +36,9 @@ Rules:
 
 Treat the garden map as a **lightweight design canvas** (Figma-lite), not a Google-Maps clone.
 
-- **Semantic zoom (level-of-detail):** one canvas; detail resolves as you zoom — Garden (all zones) → Zone (beds appear) → Bed (plants, design, irrigation, live state).
-- **Spatially true:** beds sit in their real relative positions/orientation. To-scale (measured footprint) is a later pass; topological-first for v1.
-- **Renderer = OPEN DECISION. Do not choose it unilaterally.** Architect so the renderer sits behind a swappable interface. Build the **camera + gesture + semantic-zoom skeleton first** — that "feel" is the hero and is largely renderer-independent. Candidate pieces: `@use-gesture/react` + a spring/motion lib for pan/zoom/drag; an SVG or Canvas base with optional WebGL/WebGPU flourishes where they earn their place. **Flag this for human sign-off before committing to a renderer.** Candidates, tradeoffs, and how to run the spike are in **docs/map-renderer-decision.md** — read it when you reach this decision.
+- **Discrete level-of-detail (NOT free zoom):** navigation is **three fixed levels** with animated transitions — Garden (overview / hero) → Zone (beds resolve) → Bed (plants, design, irrigation, reservoir level). Tap to drill in; breadcrumb / Back / Esc / tap-empty-space to step out. Continuous pan/pinch zoom was tried and rejected (hard to navigate). See the three-pane model in `docs/map-renderer-decision.md`.
+- **Spatially true:** beds sit in their real relative positions/orientation. To-scale (measured footprint) is a later pass; topological-first for v1. Drag-to-place ("arrange" mode) is deferred; the scene auto-layouts for now.
+- **Renderer = SVG (decided 2026-06-14).** It sits behind a swappable `MapRendererProps` interface (a Konva/Canvas spike validated the swap, then was removed to keep the PWA lean). The camera (`@use-gesture/react` + `@react-spring/web`) frames the focused element. Rationale + the Konva comparison are in **docs/map-renderer-decision.md**.
 
 ---
 

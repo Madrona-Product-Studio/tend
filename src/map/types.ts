@@ -15,8 +15,15 @@ export interface Rect { x: number; y: number; w: number; h: number }
 /** Camera as the SVG group transform: screen = world * s + (x, y). */
 export interface Camera { x: number; y: number; s: number }
 
-/** Level-of-detail — detail resolves as you zoom in. */
+/** The three discrete levels — navigation steps, not continuous zoom. */
 export type Lod = 'garden' | 'zone' | 'bed';
+
+/** Where the user is in the drill-down. Drives both the camera framing and
+ *  the rendered detail. Garden → Zone → Bed; back steps out. */
+export type Focus =
+  | { level: 'garden' }
+  | { level: 'zone'; zoneId: string }
+  | { level: 'bed'; zoneId: string; bedId: string };
 
 /** A bed placed in world space, with its source entity for rendering detail. */
 export interface BedNode {
@@ -41,19 +48,19 @@ export interface Scene {
   tree: GardenTree;   // for plant/equipment detail at bed LOD
 }
 
-/** What every concrete renderer receives. Renderer-agnostic: SVG and Canvas
- *  both consume this. The renderer owns its surface and applies `camera`. */
+/** What a concrete renderer receives. The renderer owns its surface, applies the
+ *  `camera`, and renders detail for the current `focus` level. Kept behind this
+ *  interface so the renderer stays swappable (we shipped the SVG one). */
 export interface MapRendererProps {
   scene: Scene;
-  lod: Lod;
-  viewport: Size;
+  focus: Focus;
   /** Plain-number camera (screen = world * s + x,y). Re-rendered per frame. */
   camera: Camera;
-  /** Move a bed by a world-space delta (live, during drag). */
-  onMoveBed: (bedId: string, dxWorld: number, dyWorld: number) => void;
-  /** Persist a bed's placement (on drag end). */
-  onCommitBed: (bedId: string) => void;
-  /** Tell the host a bed drag is in progress, so camera panning yields. */
-  onBedDragStart: () => void;
-  onBedDragEnd: () => void;
+  viewport: Size;
+  /** Drill into a zone (from garden level). */
+  onSelectZone: (zoneId: string) => void;
+  /** Open a bed (from zone level). */
+  onSelectBed: (bedId: string) => void;
+  /** Click empty space to step back out one level. */
+  onBack: () => void;
 }

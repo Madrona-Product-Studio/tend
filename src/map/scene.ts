@@ -69,8 +69,9 @@ export function buildScene(tree: GardenTree): Scene {
         x: ox + ZONE_PAD + (bi % cols) * (BED_W + BED_GAP),
         y: oy + ZONE_HEADER + ZONE_PAD + Math.floor(bi / cols) * (BED_H + BED_GAP),
       };
-      const pos = bed.position ?? auto; // saved placement wins
-      return { id: bed.id, zoneId: zone.id, bed, rect: { x: pos.x, y: pos.y, w: BED_W, h: BED_H } };
+      // Always auto-layout for now — explicit "arrange" mode (drag-to-place,
+      // honoring bed.position) returns in a later pass.
+      return { id: bed.id, zoneId: zone.id, bed, rect: { x: auto.x, y: auto.y, w: BED_W, h: BED_H } };
     });
 
     // Zone region = bbox of its beds, expanded for padding + header.
