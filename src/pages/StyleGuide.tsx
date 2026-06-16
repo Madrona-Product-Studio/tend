@@ -34,17 +34,17 @@ function Section({ index, title, breath, children }: {
 export default function StyleGuide() {
   return (
     <>
-      <title>Style guide · Tend</title>
+      <title>Style guide · GardenHQ</title>
       <meta name="robots" content="noindex" />
 
       <main className="min-h-screen max-w-4xl mx-auto px-6 py-12 sm:px-12 sm:py-16">
         <header className="mb-14">
-          <Link to="/" className="text-sm text-muted hover:text-ink70 transition-colors">← Tend</Link>
+          <Link to="/" className="text-sm text-muted hover:text-ink70 transition-colors">← GardenHQ</Link>
           <div className="mt-6 flex items-center gap-4">
             <Mark id="leaf" size={40} color={T.seal} />
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-ink leading-none">swiss / zen</h1>
-              <p className="mt-1.5 text-sm text-muted">Tend's living component library — consume it, grow it, promote wins back.</p>
+              <p className="mt-1.5 text-sm text-muted">GardenHQ's living component library — consume it, grow it, promote wins back.</p>
             </div>
           </div>
         </header>
@@ -74,7 +74,7 @@ export default function StyleGuide() {
           </div>
         </Section>
 
-        <Section index="03" title="Marks" breath="Calm abstract glyphs. Leaf is Tend's recurring marker; the family carries section signatures and live-state accents.">
+        <Section index="03" title="Marks" breath="Calm abstract glyphs. Leaf is GardenHQ's recurring marker; the family carries section signatures and live-state accents.">
           <div className="flex flex-wrap gap-6">
             {MARKS.map((m) => (
               <div key={m} className="flex flex-col items-center gap-2">
@@ -108,7 +108,7 @@ export default function StyleGuide() {
           </div>
         </Section>
 
-        <Section index="06" title="Live state (preview)" breath="The swiss/zen NowStrip pattern returns here as Tend's spatial-dashboard widget — reservoir level, greenhouse temp, irrigation on/off.">
+        <Section index="06" title="Live state (preview)" breath="The swiss/zen NowStrip pattern returns here as GardenHQ's spatial-dashboard widget — reservoir level, greenhouse temp, irrigation on/off.">
           <div className="rounded-card bg-card border border-line p-5 max-w-md">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-2 h-2 rounded-full bg-live" />

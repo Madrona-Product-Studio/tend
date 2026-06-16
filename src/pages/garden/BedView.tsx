@@ -50,7 +50,7 @@ export default function BedView() {
 
   return (
     <>
-      <title>{`${bed.name} · Tend`}</title>
+      <title>{`${bed.name} · GardenHQ`}</title>
       <meta name="robots" content="noindex" />
 
       <main className="min-h-screen max-w-5xl mx-auto px-6 py-10 sm:px-10">

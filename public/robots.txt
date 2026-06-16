@@ -3,4 +3,4 @@ Allow: /
 Disallow: /garden/
 Disallow: /styleguide
 
-Sitemap: https://tend.app/sitemap.xml
+Sitemap: https://gardenhq.app/sitemap.xml

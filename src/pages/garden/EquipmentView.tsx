@@ -19,7 +19,7 @@ export default function EquipmentView() {
 
   return (
     <>
-      <title>Equipment · Tend</title>
+      <title>Equipment · GardenHQ</title>
       <meta name="robots" content="noindex" />
       <main className="min-h-screen max-w-3xl mx-auto px-6 py-10 sm:px-10">
         <LevelHeader

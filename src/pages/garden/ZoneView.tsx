@@ -40,7 +40,7 @@ export default function ZoneView() {
 
   return (
     <>
-      <title>{`${zone.name} · Tend`}</title>
+      <title>{`${zone.name} · GardenHQ`}</title>
       <meta name="robots" content="noindex" />
       <main className="min-h-screen max-w-4xl mx-auto px-6 py-10 sm:px-10">
         <LevelHeader

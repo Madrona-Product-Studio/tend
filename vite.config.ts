@@ -24,8 +24,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Tend — garden map & manager',
-        short_name: 'Tend',
+        name: 'GardenHQ — garden map & manager',
+        short_name: 'GardenHQ',
         description: 'Map, organize, and improve your food garden year over year.',
         theme_color: '#b23a2e',
         background_color: '#f5f1ea',

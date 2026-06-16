@@ -25,7 +25,7 @@ export default function GardenView() {
 
   return (
     <>
-      <title>{`${tree.garden.name} · Tend`}</title>
+      <title>{`${tree.garden.name} · GardenHQ`}</title>
       <main className="min-h-screen max-w-4xl mx-auto px-6 py-10 sm:px-10">
         <LevelHeader
           crumbs={[]} title={tree.garden.name}
