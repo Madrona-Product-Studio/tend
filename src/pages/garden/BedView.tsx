@@ -5,7 +5,7 @@ import { useLens } from '@/hooks/useLens';
 import { LevelHeader } from '@components/LevelChrome';
 import {
   plantsInBed, bedSystems, bedRowsOf, tasksForBed, observationsForBed, observationsForPlant,
-  bedLive, hasLive, CROP_LABEL, type Plant, type SystemRow,
+  bedLive, hasLive, bedWater, CROP_LABEL, type BedWater, type Plant, type SystemRow,
 } from '@/domain';
 import { CROP_DOT } from '@design/cropColors';
 import { Label, Hairline } from '@design/primitives';
@@ -17,7 +17,7 @@ import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
   const { gardenId = 'demo', bedId = '' } = useParams<{ gardenId: string; bedId: string }>();
-  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed, addObservation, removeObservation, toggleTask, addTask, removeTask } = useGarden(gardenId);
+  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed, addObservation, removeObservation, toggleTask, addTask, removeTask, setIrrigationOn } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const [editing, setEditing] = useState(false);
   const [plantId, setPlantId] = useState<string | null>(null);
@@ -38,11 +38,10 @@ export default function BedView() {
   }
 
   const plants = plantsInBed(tree, bed.id);
-  const systems = bedSystems(tree, bed.id);
-  const reservoir = bed.state?.reservoirLevel;
-  const otherSystems = systems.filter((s) => s.kind !== 'reservoir');
+  const equipChips = bedSystems(tree, bed.id).filter((s) => s.kind === 'cover' || s.kind === 'sensor');
   const { layout, rows } = bedRowsOf(plants, bed.layout);
   const live = bedLive(tree, bed.id);
+  const water = bedWater(tree, bed.id);
   const tasks = tasksForBed(tree, bed.id);
   const notes = observationsForBed(tree, bed.id);
   const planting = plantId ? plants.find((p) => p.id === plantId) ?? null : null;
@@ -93,20 +92,16 @@ export default function BedView() {
                     />
                   : <BedShape rows={rows} sideBySide={!!layout.sideBySide} selectedId={plantId} onSelect={setPlantId} />}
 
-                {(typeof reservoir === 'number' || otherSystems.length > 0) && (
-                  <>
-                    <Hairline className="my-6" />
-                    <Label className="text-clay">Systems</Label>
-                    <div className="mt-4 flex flex-col gap-4">
-                      {typeof reservoir === 'number' && <ReservoirBar level={reservoir} />}
-                      {otherSystems.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {otherSystems.map((s, i) => <SystemChip key={i} row={s} />)}
-                        </div>
-                      )}
+                <Hairline className="my-6" />
+                <div className="flex flex-col gap-6">
+                  <WaterControl water={water} onToggle={(on) => { if (water.node) void setIrrigationOn(water.node.id, on); }} />
+                  {equipChips.length > 0 && (
+                    <div>
+                      <div className="mb-2"><Label className="text-clay">Equipment</Label></div>
+                      <div className="flex flex-wrap gap-2">{equipChips.map((s, i) => <SystemChip key={i} row={s} />)}</div>
                     </div>
-                  </>
-                )}
+                  )}
+                </div>
               </section>
             ) : (
               <section className="rounded-card bg-card border border-line p-5 sm:p-7">
@@ -212,16 +207,28 @@ function Lane({ index, plants, vertical, last, selectedId, onSelect }: {
   );
 }
 
-function ReservoirBar({ level }: { level: number }) {
+// Irrigation, framed to answer "is this bed watered, and if not why?" + a toggle.
+function WaterControl({ water, onToggle }: { water: BedWater; onToggle: (on: boolean) => void }) {
+  const n = water.node;
+  const kindLabel = n?.kind === 'misters' ? 'Misters' : n?.kind === 'soaker' ? 'Soaker hose' : n?.emitterCount ? `${n.emitterCount} emitters` : 'Drip';
   return (
-    <div className="max-w-xs">
-      <div className="flex justify-between items-baseline mb-1.5">
-        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Reservoir</span>
-        <span className="text-[12px] font-semibold text-ink">{Math.round(level * 100)}%</span>
-      </div>
-      <div className="h-2 rounded-full bg-line-soft overflow-hidden">
-        <div className="h-full rounded-full bg-live" style={{ width: `${level * 100}%` }} />
-      </div>
+    <div>
+      <div className="mb-2"><Label className="text-clay">Water</Label></div>
+      {n ? (
+        <div className="flex items-center gap-3 flex-wrap">
+          <button type="button" role="switch" aria-checked={n.on} onClick={() => onToggle(!n.on)}
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors ${n.on ? 'border-live/40 text-live bg-live/10' : 'border-line text-muted hover:border-ink70'}`}>
+            <span className={`w-2 h-2 rounded-full ${n.on ? 'bg-live' : 'bg-faint'}`} />
+            {n.on ? 'Water on' : 'Water off'}
+          </button>
+          <span className="text-[13px] text-ink70">{kindLabel}</span>
+          {n.note && <span className="text-[12px] text-muted">· {n.note}</span>}
+        </div>
+      ) : (
+        <p className="text-[13px] text-clay">
+          {water.selfWatering ? 'Self-watering — wicking floor + reservoir, no drip line.' : 'Hand-watered — not on the drip system.'}
+        </p>
+      )}
     </div>
   );
 }

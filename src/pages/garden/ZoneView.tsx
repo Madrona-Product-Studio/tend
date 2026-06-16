@@ -8,7 +8,7 @@ import { ZoneLayoutEditor } from '@components/ZoneLayoutEditor';
 import { BedCard, AddBedCard } from '@components/BedCard';
 import { TasksSection } from '@components/TasksSection';
 import { NewBedDialog } from './NewBedDialog';
-import { bedsInZone, zoneLayout, bedLive, hasLive, SUN_LABEL } from '@/domain';
+import { bedsInZone, zoneLayout, bedLive, SUN_LABEL } from '@/domain';
 import { Breath } from '@design/primitives';
 
 export default function ZoneView() {
@@ -24,7 +24,8 @@ export default function ZoneView() {
   const { items, bounds } = useMemo(() => zoneLayout(beds), [beds]);
   const liveItems = useMemo(() => (tree ? items.map((it) => {
     const l = bedLive(tree, it.id);
-    return { ...it, live: hasLive(l), liveLabel: l.reading?.tempF !== undefined ? `${l.reading.tempF}°` : undefined };
+    const active = !!(l.reading || l.irrigationOn === true || typeof l.reservoirLevel === 'number');
+    return { ...it, live: active, liveLabel: l.reading?.tempF !== undefined ? `${l.reading.tempF}°` : undefined };
   }) : items), [items, tree]);
 
   if (status !== 'ready' || !tree) {

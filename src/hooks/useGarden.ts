@@ -21,6 +21,7 @@ export function useGarden(gardenId: ID) {
   const addObservation = useGardenStore((s) => s.addObservation);
   const removeObservation = useGardenStore((s) => s.removeObservation);
   const reassignEquipment = useGardenStore((s) => s.reassignEquipment);
+  const setIrrigationOn = useGardenStore((s) => s.setIrrigationOn);
 
   useEffect(() => {
     void load(gardenId);
@@ -28,6 +29,6 @@ export function useGarden(gardenId: ID) {
 
   return {
     tree, status, toggleTask, addTask, removeTask, setPlantArrangement, addPlant, removePlant, setBedLayout,
-    addBed, setBedGeometry, renameZone, renameBed, addObservation, removeObservation, reassignEquipment,
+    addBed, setBedGeometry, renameZone, renameBed, addObservation, removeObservation, reassignEquipment, setIrrigationOn,
   };
 }

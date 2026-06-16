@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { Bed, BedLayout, BedShape, EquipmentKind, GardenTree, ID, Observation, Plant, Rect, Task } from '@/domain';
 import {
   loadGardenTree, setTaskDone, savePlantArrangement, insertPlant, deletePlant, saveBedLayout, insertBed, saveBedGeometry,
-  renameZone, renameBed, addObservation, deleteObservation, addTask, deleteTask, setEquipmentAssignment,
+  renameZone, renameBed, addObservation, deleteObservation, addTask, deleteTask, setEquipmentAssignment, setIrrigationOn,
 } from '@/data/repo';
 import { seedIfEmpty } from '@/data/seed';
 
@@ -26,6 +26,7 @@ interface GardenStore {
   addObservation: (input: { bedId?: ID; plantId?: ID; zoneId?: ID; text: string }) => Promise<void>;
   removeObservation: (id: ID) => Promise<void>;
   reassignEquipment: (kind: EquipmentKind, id: ID, assignedBedId?: ID) => Promise<void>;
+  setIrrigationOn: (nodeId: ID, on: boolean) => Promise<void>;
 }
 
 export const useGardenStore = create<GardenStore>((set, get) => ({
@@ -182,5 +183,12 @@ export const useGardenStore = create<GardenStore>((set, get) => ({
       },
     });
     await setEquipmentAssignment(kind, id, assignedBedId);
+  },
+
+  setIrrigationOn: async (nodeId, on) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, irrigation: tree.irrigation.map((n) => (n.id === nodeId ? { ...n, on } : n)) } });
+    await setIrrigationOn(nodeId, on);
   },
 }));

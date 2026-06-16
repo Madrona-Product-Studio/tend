@@ -29,6 +29,10 @@ export async function setTaskDone(taskId: ID, done: boolean): Promise<void> {
   await db.tasks.update(taskId, { done });
 }
 
+export async function setIrrigationOn(nodeId: ID, on: boolean): Promise<void> {
+  await db.irrigation.update(nodeId, { on });
+}
+
 export async function addTask(task: Task): Promise<void> {
   await db.tasks.add(task);
 }

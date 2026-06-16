@@ -145,6 +145,21 @@ export function bedLive(t: GardenTree, bedId: ID): BedLive {
   };
 }
 
+/** A bed's water situation, framed to answer "is it watered, and if not why?" */
+export interface BedWater {
+  node?: { id: ID; on: boolean; kind?: string; emitterCount?: number; note?: string };
+  selfWatering: boolean;   // wicking bed: watered from its reservoir, no drip line
+}
+
+export function bedWater(t: GardenTree, bedId: ID): BedWater {
+  const node = equipmentForBed(t, bedId).irrigation[0];
+  const bed = t.beds.find((b) => b.id === bedId);
+  return {
+    node: node ? { id: node.id, on: node.on, kind: node.kind, emitterCount: node.emitterCount, note: node.notes } : undefined,
+    selfWatering: bed?.type === 'vigo-wicking',
+  };
+}
+
 export const hasLive = (l: BedLive) =>
   l.reading?.tempF !== undefined || l.reading?.humidityPct !== undefined ||
   typeof l.reservoirLevel === 'number' || l.irrigationOn !== undefined;
