@@ -21,20 +21,15 @@ export default function Home() {
         <p className="mt-4 max-w-md text-clay text-[17px] sm:text-xl leading-[1.5]">
           Map, organize, and improve your food garden — year over year.
         </p>
-        <div className="mt-9 flex items-center gap-3">
+        <div className="mt-9">
           <Link
             to="/garden/demo"
-            className="inline-flex items-center rounded-card bg-seal px-5 py-2.5 text-sm font-semibold text-card transition-opacity hover:opacity-90"
+            className="inline-flex items-center rounded-card bg-seal px-6 py-3 text-sm font-semibold text-card transition-opacity hover:opacity-90"
           >
-            Open the garden
-          </Link>
-          <Link
-            to="/styleguide"
-            className="inline-flex items-center rounded-card border border-line px-5 py-2.5 text-sm font-semibold text-ink70 transition-colors hover:border-ink70"
-          >
-            Style guide
+            View demo
           </Link>
         </div>
+        <p className="mt-4 text-[12px] text-faint">Demo mode · sample garden</p>
       </main>
     </>
   );
