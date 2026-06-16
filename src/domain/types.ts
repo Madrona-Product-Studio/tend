@@ -136,6 +136,12 @@ export interface Cover {
   assignedBedId?: ID;  // undefined = in storage / unassigned
 }
 
+export interface SensorReading {
+  tempF?: number;
+  humidityPct?: number;
+  updatedAt: number;
+}
+
 export interface Sensor {
   id: ID;
   gardenId: ID;
@@ -143,6 +149,7 @@ export interface Sensor {
   measures: 'temp-humidity';
   assignedBedId?: ID;
   reliabilityNote?: string;
+  reading?: SensorReading;   // latest live reading (hand-logged now; sensor-fed at v1.5)
 }
 
 /** Irrigation is a network with state, not a boolean: hose → nodes → per-bed

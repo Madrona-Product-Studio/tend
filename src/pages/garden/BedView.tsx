@@ -5,13 +5,14 @@ import { useLens } from '@/hooks/useLens';
 import { LevelHeader } from '@components/LevelChrome';
 import {
   plantsInBed, bedSystems, bedRowsOf, tasksForBed, observationsForBed, observationsForPlant,
-  CROP_LABEL, type Plant, type SystemRow,
+  bedLive, hasLive, CROP_LABEL, type Plant, type SystemRow,
 } from '@/domain';
 import { CROP_DOT } from '@design/cropColors';
 import { Label, Hairline } from '@design/primitives';
 import { T } from '@design/tokens';
 import { NotesSection } from '@components/NotesSection';
 import { TasksSection } from '@components/TasksSection';
+import { LiveStrip } from '@components/LiveStrip';
 import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
@@ -41,6 +42,7 @@ export default function BedView() {
   const reservoir = bed.state?.reservoirLevel;
   const otherSystems = systems.filter((s) => s.kind !== 'reservoir');
   const { layout, rows } = bedRowsOf(plants, bed.layout);
+  const live = bedLive(tree, bed.id);
   const tasks = tasksForBed(tree, bed.id);
   const notes = observationsForBed(tree, bed.id);
   const planting = plantId ? plants.find((p) => p.id === plantId) ?? null : null;
@@ -70,6 +72,8 @@ export default function BedView() {
             </button>
           ) : null}
         />
+
+        {hasLive(live) && <div className="mt-6"><LiveStrip label={bed.name} live={live} /></div>}
 
         <div className="mt-6 lg:flex lg:gap-8 lg:items-start">
           <div className="flex-1 min-w-0">

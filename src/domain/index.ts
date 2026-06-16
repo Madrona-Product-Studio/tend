@@ -1,7 +1,7 @@
 // Public surface of the domain core: types + pure selectors/labels.
 export * from './types';
 
-import type { Bed, BedLayout, BedShape, BedType, CropCategory, GardenTree, ID, Plant, Rect, SunExposure } from './types';
+import type { Bed, BedLayout, BedShape, BedType, CropCategory, GardenTree, ID, Plant, Rect, SensorReading, SunExposure } from './types';
 
 // ── Display labels (UI-facing, but pure & dependency-free) ─────────────────────
 
@@ -73,7 +73,7 @@ export function bedRowsOf(plants: Plant[], layout?: BedLayout): { layout: BedLay
 
 // ── Zone diagram (spatial bed layout) ───────────────────────────────────────────
 
-export interface ZoneLayoutItem { id: ID; label: string; rect: Rect; shape: BedShape; accent: boolean }
+export interface ZoneLayoutItem { id: ID; label: string; rect: Rect; shape: BedShape; accent: boolean; live?: boolean; liveLabel?: string }
 
 const bboxOf = (rects: Rect[]): Rect => {
   if (!rects.length) return { x: 0, y: 0, w: 100, h: 60 };
@@ -102,6 +102,28 @@ export function zoneLayout(beds: Bed[]): { items: ZoneLayoutItem[]; bounds: Rect
   }
   return { items, bounds: bboxOf(items.map((i) => i.rect)) };
 }
+
+// ── Live state (the spatial-dashboard layer) ────────────────────────────────────
+
+export interface BedLive {
+  reading?: SensorReading;     // from an assigned sensor
+  reservoirLevel?: number;     // 0..1
+  irrigationOn?: boolean;      // undefined = no irrigation node
+}
+
+export function bedLive(t: GardenTree, bedId: ID): BedLive {
+  const { sensors, irrigation } = equipmentForBed(t, bedId);
+  const bed = t.beds.find((b) => b.id === bedId);
+  return {
+    reading: sensors.find((s) => s.reading)?.reading,
+    reservoirLevel: bed?.state?.reservoirLevel,
+    irrigationOn: irrigation.length ? irrigation.some((n) => n.on) : undefined,
+  };
+}
+
+export const hasLive = (l: BedLive) =>
+  l.reading?.tempF !== undefined || l.reading?.humidityPct !== undefined ||
+  typeof l.reservoirLevel === 'number' || l.irrigationOn !== undefined;
 
 export function bedSystems(t: GardenTree, bedId: ID): SystemRow[] {
   const { covers, sensors, irrigation } = equipmentForBed(t, bedId);

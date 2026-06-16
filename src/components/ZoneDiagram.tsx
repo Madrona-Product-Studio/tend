@@ -35,6 +35,11 @@ export function ZoneDiagram({ items, bounds, onSelect, selectedId, mini = false,
                 {clip(it.label, Math.floor(r.w / (fs * 0.54)))}
               </text>
             )}
+            {it.live && <circle cx={r.x + r.w - fs * 0.85} cy={r.y + fs * 0.85} r={fs * 0.3} fill={T.live} />}
+            {!mini && it.liveLabel && (
+              <text x={r.x + r.w - fs * 0.6} y={r.y + r.h - fs * 0.55} textAnchor="end"
+                fontFamily={SANS} fontSize={fs * 0.78} fontWeight={700} fill={T.live}>{it.liveLabel}</text>
+            )}
           </g>
         );
       })}

@@ -12,7 +12,7 @@ import type {
 } from '@/domain';
 
 export const DEMO_GARDEN_ID = 'demo';
-const SEED_VERSION = 5; // bump to force a clean reseed in dev
+const SEED_VERSION = 6; // bump to force a clean reseed in dev
 const now = Date.now();
 
 // ── builders ──────────────────────────────────────────────────────────────────
@@ -89,8 +89,8 @@ const covers: Cover[] = [
 ];
 
 const sensors: Sensor[] = [
-  { id: 'govee-b04', gardenId: DEMO_GARDEN_ID, label: 'Govee temp / humidity', measures: 'temp-humidity', assignedBedId: 'b04' },
-  { id: 'govee-b09', gardenId: DEMO_GARDEN_ID, label: 'Govee temp / humidity', measures: 'temp-humidity', assignedBedId: 'b09' },
+  { id: 'govee-b04', gardenId: DEMO_GARDEN_ID, label: 'Govee temp / humidity', measures: 'temp-humidity', assignedBedId: 'b04', reading: { tempF: 88, humidityPct: 54, updatedAt: now } },
+  { id: 'govee-b09', gardenId: DEMO_GARDEN_ID, label: 'Govee temp / humidity', measures: 'temp-humidity', assignedBedId: 'b09', reading: { tempF: 82, humidityPct: 71, updatedAt: now } },
 ];
 
 const irrigation: IrrigationNode[] = [

@@ -8,7 +8,7 @@ import { ZoneLayoutEditor } from '@components/ZoneLayoutEditor';
 import { BedCard, AddBedCard } from '@components/BedCard';
 import { TasksSection } from '@components/TasksSection';
 import { NewBedDialog } from './NewBedDialog';
-import { bedsInZone, zoneLayout, SUN_LABEL } from '@/domain';
+import { bedsInZone, zoneLayout, bedLive, hasLive, SUN_LABEL } from '@/domain';
 import { Breath } from '@design/primitives';
 
 export default function ZoneView() {
@@ -22,6 +22,10 @@ export default function ZoneView() {
   const zone = tree?.zones.find((z) => z.id === zoneId);
   const beds = useMemo(() => (tree && zone ? bedsInZone(tree, zone.id) : []), [tree, zone]);
   const { items, bounds } = useMemo(() => zoneLayout(beds), [beds]);
+  const liveItems = useMemo(() => (tree ? items.map((it) => {
+    const l = bedLive(tree, it.id);
+    return { ...it, live: hasLive(l), liveLabel: l.reading?.tempF !== undefined ? `${l.reading.tempF}°` : undefined };
+  }) : items), [items, tree]);
 
   if (status !== 'ready' || !tree) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-muted">{status === 'error' ? 'Something went wrong.' : 'Loading…'}</div>;
@@ -62,7 +66,7 @@ export default function ZoneView() {
               <ZoneLayoutEditor beds={beds} onSave={(id, footprint, shape) => setBedGeometry(id, footprint, shape)} onAddBed={() => setAdding(true)} />
             ) : (
               <div className="rounded-xl border border-line p-3 sm:p-4" style={{ background: 'var(--color-bg)' }}>
-                <ZoneDiagram items={items} bounds={bounds} onSelect={(bid) => navigate(`/garden/${gardenId}/bed/${bid}`)} />
+                <ZoneDiagram items={liveItems} bounds={bounds} onSelect={(bid) => navigate(`/garden/${gardenId}/bed/${bid}`)} />
                 <p className="mt-2 text-center text-[12px] text-muted">Tap a bed to open it · Edit layout to arrange</p>
               </div>
             )
