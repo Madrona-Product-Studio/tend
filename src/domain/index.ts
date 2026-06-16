@@ -39,6 +39,30 @@ export const equipmentForBed = (t: GardenTree, bedId: ID) => ({
 });
 
 export const tasksForBed = (t: GardenTree, bedId: ID) => t.tasks.filter((tk) => tk.bedId === bedId);
+
+// ── Movable equipment (the "Sonos model") ───────────────────────────────────────
+// Covers and sensors are a shared, limited inventory relocated between beds.
+export type EquipmentKind = 'cover' | 'sensor';
+export interface EquipmentItem {
+  kind: EquipmentKind;
+  id: ID;
+  title: string;
+  detail?: string;
+  assignedBedId?: ID;
+}
+
+export function movableEquipment(t: GardenTree): EquipmentItem[] {
+  const covers: EquipmentItem[] = t.covers.map((c) => ({
+    kind: 'cover', id: c.id, title: c.kind === 'heat' ? 'Heat cover' : 'Mesh / shade cover',
+    detail: c.label, assignedBedId: c.assignedBedId,
+  }));
+  const sensors: EquipmentItem[] = t.sensors.map((s) => ({
+    kind: 'sensor', id: s.id, title: s.label,
+    detail: s.reading ? `${s.reading.tempF}°F · ${s.reading.humidityPct}%` : 'temp / humidity',
+    assignedBedId: s.assignedBedId,
+  }));
+  return [...covers, ...sensors];
+}
 export const observationsForBed = (t: GardenTree, bedId: ID) => t.observations.filter((o) => o.bedId === bedId && !o.plantId);
 export const observationsForPlant = (t: GardenTree, plantId: ID) => t.observations.filter((o) => o.plantId === plantId);
 

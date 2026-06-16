@@ -5,6 +5,7 @@ const Home = lazy(() => import('@pages/Home'));
 const GardenView = lazy(() => import('@pages/garden/GardenView'));
 const ZoneView = lazy(() => import('@pages/garden/ZoneView'));
 const BedView = lazy(() => import('@pages/garden/BedView'));
+const EquipmentView = lazy(() => import('@pages/garden/EquipmentView'));
 const StyleGuide = lazy(() => import('@pages/StyleGuide'));
 
 function LoadingFallback() {
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/garden/:gardenId" element={<GardenView />} />
           <Route path="/garden/:gardenId/zone/:zoneId" element={<ZoneView />} />
           <Route path="/garden/:gardenId/bed/:bedId" element={<BedView />} />
+          <Route path="/garden/:gardenId/equipment" element={<EquipmentView />} />
           <Route path="/styleguide" element={<StyleGuide />} />
         </Routes>
       </Suspense>

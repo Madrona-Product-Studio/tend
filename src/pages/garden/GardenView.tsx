@@ -31,6 +31,7 @@ export default function GardenView() {
           crumbs={[]} title={tree.garden.name}
           meta={`${tree.zones.length} zones · ${tree.beds.length} beds · ${tree.plants.length} plantings`}
           lens={lens} onLens={setLens}
+          actions={<Link to={`/garden/${gardenId}/equipment`} className="rounded-card border border-line px-3 py-2 text-[12px] font-semibold text-ink70 hover:border-ink70 transition-colors">Equipment</Link>}
         />
 
         <div className="mt-6">

@@ -1,7 +1,7 @@
 // Thin typed repository over Dexie. Views and stores talk to this, never to
 // Dexie directly — so the storage layer stays swappable behind the domain.
 import { db } from './db';
-import type { Bed, BedLayout, BedShape, GardenTree, ID, Observation, Plant, Rect, Task } from '@/domain';
+import type { Bed, BedLayout, BedShape, EquipmentKind, GardenTree, ID, Observation, Plant, Rect, Task } from '@/domain';
 
 /** Load everything for one garden in a single pass. */
 export async function loadGardenTree(gardenId: ID): Promise<GardenTree | null> {
@@ -35,6 +35,12 @@ export async function addTask(task: Task): Promise<void> {
 
 export async function deleteTask(id: ID): Promise<void> {
   await db.tasks.delete(id);
+}
+
+/** Reassign a movable item to a bed, or to storage (undefined). */
+export async function setEquipmentAssignment(kind: EquipmentKind, id: ID, assignedBedId?: ID): Promise<void> {
+  const table = kind === 'cover' ? db.covers : db.sensors;
+  await table.update(id, { assignedBedId });
 }
 
 export async function setBedPosition(bedId: ID, position: { x: number; y: number }): Promise<void> {
