@@ -46,3 +46,153 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Home hero — photographic garden ground with a calm central copy opening.
+   Assets live in /public/images/gardenhq. Text stays live HTML; the photo is
+   purely decorative (alt=""). Colors reference the cream page ground token
+   (--color-bg = #f5f1ea) so the atmospheric haze matches the flat fallback.
+   ════════════════════════════════════════════════════════════════════════════ */
+.home-hero {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.home-hero__media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+/* Natural cream haze behind the copy — a soft opening, not a card or glow. */
+.home-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 50%;
+  width: min(860px, 96vw);
+  height: 66%;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(245, 241, 234, 0.9) 0%,
+    rgba(245, 241, 234, 0.62) 46%,
+    rgba(245, 241, 234, 0) 78%
+  );
+  pointer-events: none;
+}
+
+.home-hero__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  /* Sit above the visual midpoint, clear of the foreground foliage. */
+  transform: translateY(-9svh);
+  padding: 0 24px calc(env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.home-hero__cta {
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.home-hero__cta:hover {
+  transform: translateY(-1px);
+}
+.home-hero__cta:focus-visible {
+  outline: 3px solid rgba(178, 58, 46, 0.32);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .home-hero__media img {
+    object-position: center 50%;
+  }
+  .home-hero__content {
+    transform: translateY(-10svh);
+  }
+  .home-hero::after {
+    top: 0;
+    height: 62%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero__cta {
+    transition: none;
+  }
+  .home-hero__cta:hover {
+    transform: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Tactile surfaces — the guide keeps resting states flat (hairlines, no
+   elevation). Tactility is expressed on interaction: a small lift and the
+   faintest warm shadow so cards feel like physical objects you can pick up.
+   ════════════════════════════════════════════════════════════════════════════ */
+.tactile {
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+@media (hover: hover) {
+  .tactile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px -12px rgba(26, 23, 20, 0.22);
+  }
+}
+.tactile:active {
+  transform: translateY(0);
+}
+
+/* Beds on the zone map — gently grow and darken their hairline on hover so the
+   spatial map reads as interactive, not a static drawing. */
+.zbed {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 140ms ease;
+}
+.zbed rect,
+.zbed ellipse {
+  transition: stroke 140ms ease;
+}
+@media (hover: hover) {
+  .zbed:hover {
+    transform: scale(1.025);
+  }
+  .zbed:hover rect,
+  .zbed:hover ellipse {
+    stroke: var(--color-ink70);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tactile,
+  .zbed {
+    transition: border-color 150ms ease;
+  }
+  .tactile:hover,
+  .zbed:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

@@ -32,7 +32,7 @@ export function BedCard({ tree, bed, gardenId }: { tree: GardenTree; bed: Bed; g
   const more = plants.length - shown.length;
 
   return (
-    <Link to={`/garden/${gardenId}/bed/${bed.id}`} className="block rounded-card bg-card border border-line p-4 hover:border-ink70 transition-colors">
+    <Link to={`/garden/${gardenId}/bed/${bed.id}`} className="tactile block rounded-card bg-card border border-line p-4 hover:border-ink70">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-[15px] font-semibold text-ink leading-snug">{bed.name}</h3>
         <span className="text-[11px] text-muted shrink-0">{plants.length} plant{plants.length === 1 ? '' : 's'}</span>
@@ -65,7 +65,7 @@ export function BedCard({ tree, bed, gardenId }: { tree: GardenTree; bed: Bed; g
 export function AddBedCard({ onClick }: { onClick: () => void }) {
   return (
     <button type="button" onClick={onClick}
-      className="rounded-card border border-dashed border-line p-4 text-left text-[14px] font-semibold text-muted hover:border-ink70 hover:text-ink70 transition-colors min-h-[88px]">
+      className="tactile rounded-card border border-dashed border-line p-4 text-left text-[14px] font-semibold text-muted hover:border-ink70 hover:text-ink70 min-h-[88px]">
       + Build a bed
     </button>
   );

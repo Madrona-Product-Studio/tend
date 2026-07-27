@@ -42,7 +42,7 @@ export default function GardenView() {
                 const { items, bounds } = zoneLayout(zb);
                 return (
                   <Link key={z.id} to={`/garden/${gardenId}/zone/${z.id}`}
-                    className="block rounded-card bg-card border border-line p-4 hover:border-ink70 transition-colors">
+                    className="tactile block rounded-card bg-card border border-line p-4 hover:border-ink70">
                     <div className="flex items-baseline justify-between gap-2">
                       <h3 className="text-[15px] font-semibold text-ink">{z.name}</h3>
                       <span className="text-[11px] text-muted shrink-0">{zb.length} beds</span>

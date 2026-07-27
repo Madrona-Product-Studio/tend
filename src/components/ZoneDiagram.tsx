@@ -27,7 +27,9 @@ export function ZoneDiagram({ items, bounds, onSelect, selectedId, mini = false,
         const cpl = Math.max(4, Math.floor((r.w - fs) / (fs * 0.55)));
         const lines = mini ? [] : wrapLabel(it.label, cpl);
         return (
-          <g key={it.id} onClick={onSelect ? () => onSelect(it.id) : undefined} style={{ cursor: onSelect ? 'pointer' : 'default' }}>
+          <g key={it.id} className={onSelect ? 'zbed' : undefined}
+            onClick={onSelect ? () => onSelect(it.id) : undefined}
+            style={{ cursor: onSelect ? 'pointer' : 'default' }}>
             {it.shape === 'ellipse'
               ? <ellipse cx={r.x + r.w / 2} cy={r.y + r.h / 2} rx={r.w / 2} ry={r.h / 2} {...common} />
               : <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={fs * 0.45} {...common} />}
