@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { GardenTree } from '@/domain';
 import { Label } from '@design/primitives';
+import { MADRONA_URL, madronaClick } from '@/lib/madrona';
 
 const WELCOME_SEEN_KEY = 'gardenhq:welcome:v1';
 
@@ -101,7 +102,12 @@ function WelcomeDialog({ tree, gardenId, onClose }: {
           )}
         </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row gap-2.5">
+        <p className="m-0 mt-4 text-[11.5px] leading-[1.55] text-muted">
+          What you&rsquo;re seeing: a real garden&rsquo;s season, stored only in
+          your browser. Explore freely — nothing leaves your device.
+        </p>
+
+        <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
           {highlight && (
             <Link ref={primaryRef} to={`/garden/${gardenId}/bed/${highlight.bedId}`} onClick={dismiss}
               className="cta-seal inline-flex min-h-[44px] items-center justify-center rounded-card bg-seal px-5 text-sm font-semibold text-card transition-opacity hover:opacity-90">
@@ -113,6 +119,16 @@ function WelcomeDialog({ tree, gardenId, onClose }: {
             Explore on my own
           </button>
         </div>
+
+        <p className="m-0 mt-5 pt-4 border-t border-line-soft text-[11.5px] leading-[1.55] text-muted">
+          Built by{' '}
+          <a href={MADRONA_URL} target="_blank" rel="noopener noreferrer"
+            onClick={() => madronaClick('welcome-intro')}
+            className="font-semibold text-clay hover:text-ink transition-colors">
+            Madrona Product Studio
+          </a>
+          {' '}— want one of your own, or one for what you run? Say hello.
+        </p>
       </div>
     </>
   );

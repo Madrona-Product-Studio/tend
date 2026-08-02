@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Breath, Label, Mark } from '@design/primitives';
 import { T } from '@design/tokens';
+import { StudioContact, MarketingFooter } from '@components/MadronaContact';
 
 const WHY = [
   {
@@ -63,6 +64,10 @@ export default function Home() {
             <p className="mt-4 max-w-md text-clay text-[17px] sm:text-xl leading-[1.5]">
               Map, organize, and improve your food garden — year over year.
             </p>
+            <p className="mt-3 max-w-sm text-[13px] sm:text-[14px] leading-[1.55] text-ink70">
+              Your zones, beds, and plantings — with the sensors, covers, and
+              watering that keep them alive — on one living map.
+            </p>
             <div className="mt-9">
               <Link
                 to="/garden/demo"
@@ -114,7 +119,11 @@ export default function Home() {
           </div>
 
           <WaitlistSignup />
+
+          <StudioContact from="landing" className="mt-16 border-t border-line pt-10" />
         </section>
+
+        <MarketingFooter />
       </main>
     </>
   );

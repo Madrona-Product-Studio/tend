@@ -4,6 +4,7 @@
 import { Link } from 'react-router-dom';
 import { Breath, Hairline, Label, Mark } from '@design/primitives';
 import { T } from '@design/tokens';
+import { StudioContact, MarketingFooter } from '@components/MadronaContact';
 
 const SECTIONS = [
   {
@@ -93,7 +94,10 @@ export default function About() {
             Back home
           </Link>
         </div>
+
+        <StudioContact from="about" className="mt-16 border-t border-line pt-10" />
       </main>
+      <MarketingFooter />
     </>
   );
 }
