@@ -11,7 +11,7 @@ const WHY = [
   },
   {
     title: 'Live systems',
-    body: 'Sensors, reservoirs, covers, and irrigation are part of the map — 88° in the pepper bed, reservoir at 60%, right now.',
+    body: 'Sensors, reservoirs, covers, and irrigation are part of the map: 88° in the pepper bed, reservoir at 60%, right now.',
   },
   {
     title: 'Year over year',
@@ -62,10 +62,10 @@ export default function Home() {
               GardenHQ
             </h1>
             <p className="mt-4 max-w-md text-clay text-[17px] sm:text-xl leading-[1.5]">
-              Map, organize, and improve your food garden — year over year.
+              Map, organize, and improve your food garden, year over year.
             </p>
             <p className="mt-3 text-[13px] sm:text-[14px] font-medium text-ink70">
-              Every bed, plant, and sensor — one living map.
+              Every bed, plant, and sensor on one living map.
             </p>
             <div className="mt-9">
               <Link
@@ -75,13 +75,16 @@ export default function Home() {
                 View demo
               </Link>
             </div>
+            <Link to="/about" className="mt-5 text-[13px] font-semibold text-clay hover:text-ink transition-colors">
+              About GardenHQ
+            </Link>
           </div>
         </section>
 
         <section className="mx-auto max-w-4xl px-6 py-16 sm:px-10 sm:py-24">
           <Label className="text-clay">Why a map</Label>
           <Breath className="mt-3 max-w-2xl">
-            A garden is a system — beds, water, covers, sensors. GardenHQ puts
+            A garden is a system: beds, water, covers, sensors. GardenHQ puts
             the whole thing on one living map.
           </Breath>
 
@@ -161,8 +164,8 @@ function WaitlistSignup() {
     <div className="mt-16 border-t border-line pt-10 text-center">
       <Label className="text-clay">Early access</Label>
       <p className="mx-auto mt-2 max-w-md text-[14px] leading-[1.6] text-clay">
-        Want a map of your own garden? Leave an email — we&rsquo;ll write when
-        accounts open.
+        Want a map of your own garden? Leave an email and we&rsquo;ll write
+        when accounts open.
       </p>
       {state === 'done' ? (
         <p className="mt-5 text-[14px] font-semibold text-live">You&rsquo;re on the list.</p>
@@ -185,7 +188,7 @@ function WaitlistSignup() {
         </form>
       )}
       {state === 'error' && (
-        <p className="mt-3 text-[12px] text-seal">Something went wrong — please try again.</p>
+        <p className="mt-3 text-[12px] text-seal">Something went wrong. Please try again.</p>
       )}
     </div>
   );

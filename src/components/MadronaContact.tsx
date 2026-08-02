@@ -10,7 +10,7 @@ export function StudioContact({ from, className = '' }: { from: string; classNam
     <div className={`text-center ${className}`}>
       <Label className="text-clay">Get in touch</Label>
       <p className="mx-auto mt-2 max-w-md text-[14px] leading-[1.6] text-clay">
-        Want GardenHQ for your own garden — or a living map like this for
+        Want GardenHQ for your own garden, or a living map like this for
         something you run? It&rsquo;s built by Madrona Product Studio.
       </p>
       <a
