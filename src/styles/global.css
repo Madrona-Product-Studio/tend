@@ -113,13 +113,14 @@ body {
   text-align: center;
 }
 
-.home-hero__cta {
+/* Seal CTA — the primary action button, wherever it appears (hero, dialogs). */
+.cta-seal {
   transition: transform 160ms ease, opacity 160ms ease;
 }
-.home-hero__cta:hover {
+.cta-seal:hover {
   transform: translateY(-1px);
 }
-.home-hero__cta:focus-visible {
+.cta-seal:focus-visible {
   outline: 3px solid rgba(178, 58, 46, 0.32);
   outline-offset: 3px;
 }
@@ -138,10 +139,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-hero__cta {
+  .cta-seal {
     transition: none;
   }
-  .home-hero__cta:hover {
+  .cta-seal:hover {
     transform: none;
   }
 }

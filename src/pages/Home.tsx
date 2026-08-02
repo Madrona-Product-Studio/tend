@@ -1,6 +1,22 @@
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Mark } from '@design/primitives';
+import { Breath, Label, Mark } from '@design/primitives';
 import { T } from '@design/tokens';
+
+const WHY = [
+  {
+    title: 'Spatially true',
+    body: 'Zones, beds, and plantings drawn where they actually are. Drill from the whole garden down to a single plant.',
+  },
+  {
+    title: 'Live systems',
+    body: 'Sensors, reservoirs, covers, and irrigation are part of the map — 88° in the pepper bed, reservoir at 60%, right now.',
+  },
+  {
+    title: 'Year over year',
+    body: 'Notes, tasks, and observations accumulate into a record of what worked, so next season starts smarter.',
+  },
+];
 
 export default function Home() {
   return (
@@ -50,15 +66,112 @@ export default function Home() {
             <div className="mt-9">
               <Link
                 to="/garden/demo"
-                className="home-hero__cta inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
+                className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
               >
                 View demo
               </Link>
             </div>
-            <p className="mt-4 text-[12px] text-faint">Demo mode · sample garden</p>
+            <p className="mt-4 text-[12px] font-medium text-clay">Demo mode · sample garden</p>
           </div>
+        </section>
+
+        <section className="mx-auto max-w-4xl px-6 py-16 sm:px-10 sm:py-24">
+          <Label className="text-clay">Why a map</Label>
+          <Breath className="mt-3 max-w-2xl">
+            A garden is a system — beds, water, covers, sensors. GardenHQ puts
+            the whole thing on one live map.
+          </Breath>
+
+          <div className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-10">
+            {WHY.map((w) => (
+              <div key={w.title}>
+                <h2 className="m-0 text-[15px] font-semibold tracking-[-0.01em] text-ink">{w.title}</h2>
+                <p className="m-0 mt-1.5 text-[13.5px] leading-[1.6] text-clay">{w.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <figure className="m-0 mt-12 rounded-card border border-line bg-card p-2 sm:p-3">
+            <img
+              src="/images/gardenhq/product-zone-map.png"
+              alt="Zone map of a garden: nine beds drawn in place, with live temperature readings on the pepper bed and greenhouse"
+              loading="lazy"
+              decoding="async"
+              className="block w-full rounded-lg"
+            />
+          </figure>
+
+          <div className="mt-12 text-center">
+            <Link
+              to="/garden/demo"
+              className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
+            >
+              View demo
+            </Link>
+          </div>
+
+          <WaitlistSignup />
         </section>
       </main>
     </>
+  );
+}
+
+// Email capture for the v1.5 accounts waitlist. Renders only when a capture
+// endpoint (Formspree-compatible JSON POST) is configured — never a form that
+// silently drops emails.
+function WaitlistSignup() {
+  const endpoint = import.meta.env.VITE_WAITLIST_ENDPOINT as string | undefined;
+  const [email, setEmail] = useState('');
+  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  if (!endpoint) return null;
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || state === 'sending') return;
+    setState('sending');
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      setState(res.ok ? 'done' : 'error');
+    } catch {
+      setState('error');
+    }
+  };
+
+  return (
+    <div className="mt-16 border-t border-line pt-10 text-center">
+      <Label className="text-clay">Early access</Label>
+      <p className="mx-auto mt-2 max-w-md text-[14px] leading-[1.6] text-clay">
+        Want a map of your own garden? Leave an email — we&rsquo;ll write when
+        accounts open.
+      </p>
+      {state === 'done' ? (
+        <p className="mt-5 text-[14px] font-semibold text-live">You&rsquo;re on the list.</p>
+      ) : (
+        <form onSubmit={submit} className="mx-auto mt-5 flex max-w-sm gap-2">
+          <label className="flex-1">
+            <span className="sr-only">Email address</span>
+            <input
+              type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full min-h-[44px] rounded-card border border-line bg-card px-3 text-[14px] text-ink outline-none focus:border-ink"
+            />
+          </label>
+          <button
+            type="submit" disabled={state === 'sending'}
+            className="cta-seal min-h-[44px] rounded-card bg-seal px-5 text-sm font-semibold text-card hover:opacity-90 disabled:opacity-40"
+          >
+            {state === 'sending' ? 'Joining…' : 'Join'}
+          </button>
+        </form>
+      )}
+      {state === 'error' && (
+        <p className="mt-3 text-[12px] text-seal">Something went wrong — please try again.</p>
+      )}
+    </div>
   );
 }
