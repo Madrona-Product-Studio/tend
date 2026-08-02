@@ -45,6 +45,9 @@ ai-claude (voice) capability playbooks slot in at v1.5.
 
 ## TODO before launch
 
-- Real 1200×630 `og.png` (currently referenced but not created).
-- PWA PNG icons (192 / 512) — SVG-only for now.
 - Set the production domain (placeholder `https://gardenhq.app`).
+- Set `VITE_WAITLIST_ENDPOINT` (Formspree-compatible) so the landing-page
+  waitlist form renders; enable Web Analytics on the Vercel project.
+
+Done: `og.png` (1200×630), PWA PNG icons (180/192/512, `public/icons/`),
+brand favicon (swiss/zen leaf), `@vercel/analytics` injected.

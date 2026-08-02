@@ -22,7 +22,7 @@ export default defineConfig({
     // Installable, offline-capable PWA — gardens have poor signal.
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
         name: 'GardenHQ — garden map & manager',
         short_name: 'GardenHQ',
@@ -31,9 +31,11 @@ export default defineConfig({
         background_color: '#f5f1ea',
         display: 'standalone',
         start_url: '/',
-        // TODO: add real 192/512 PNG icons; SVG covers most surfaces for now.
         icons: [
-          { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
     }),

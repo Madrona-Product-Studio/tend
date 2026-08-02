@@ -1,6 +1,6 @@
 # Map renderer decision (OPEN — needs human sign-off)
 
-The garden map is Tend's hero: a spatially-true, semantic-zoom canvas
+The garden map is GardenHQ's hero: a spatially-true, semantic-zoom canvas
 (Garden → Zone → Bed → Plant). The renderer is a **deliberately open decision**.
 Architect so the renderer sits behind a **swappable interface**, and build the
 **camera + gesture + semantic-zoom skeleton first** — that "feel" is the hero

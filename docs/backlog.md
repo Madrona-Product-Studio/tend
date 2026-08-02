@@ -1,4 +1,4 @@
-# Tend — backlog
+# GardenHQ — backlog
 
 Living list of ideas not yet scheduled (newest at top). Product context: `docs/tend-brief.md`. Strategy: the positioning/moat memory (systems + live state + the serious-home tier).
 

@@ -1,4 +1,4 @@
-# Tend — Swiss / Zen style guide
+# GardenHQ — Swiss / Zen style guide
 
 **This file is law.** Read it before building or changing any UI. It is the
 single source of truth for color, type, spacing, radii, and the shared
@@ -6,7 +6,7 @@ primitives. (Referenced from `CLAUDE.md`.)
 
 Provenance: ported from the studio's **swiss/zen** system
 (`lilatravel/src/design/tokens.jsx`), adapted to TypeScript + Tailwind v4 for
-Tend. This is a **living component library** — see *Growing the library* below.
+GardenHQ. This is a **living component library** — see *Growing the library* below.
 
 ---
 
@@ -73,7 +73,7 @@ not drop shadows. Layer by ground (`bg` → `paper` → `card`), not by elevatio
 
 ## Primitives (`src/design/primitives.tsx`)
 
-`Mark` (glyph family; `leaf` is Tend's default marker) · `Label` · `VLabel` ·
+`Mark` (glyph family; `leaf` is GardenHQ's default marker) · `Label` · `VLabel` ·
 `Seal` · `Marker` (seal + mark + index — the section signature) · `Breath` (the
 one emotional line per section) · `Hairline` · `FactsList` (key/value rows for
 bed specs, plant attributes, irrigation facts).
@@ -83,13 +83,13 @@ desktop before shipping UI.
 
 > Intentionally **not** ported (travel-domain): `Hero`, `Bento`, `Perspective`,
 > `NowPanel`, `DESTINATIONS`. The `NowStrip`/`NowPanel` *pattern* returns as
-> Tend's live-state widget (previewed on `/styleguide` §06).
+> GardenHQ's live-state widget (previewed on `/styleguide` §06).
 
 ---
 
 ## Growing the library (the promote-back loop)
 
-Tend both **consumes and contributes to** swiss/zen. When Tend produces a
+GardenHQ both **consumes and contributes to** swiss/zen. When GardenHQ produces a
 polished, reusable primitive (a bed card, a live-state widget, a map control):
 
 1. Add it to `src/design/primitives.tsx` and render it on `/styleguide`.

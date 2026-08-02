@@ -1,6 +1,6 @@
-# Tend — Claude Code project guide
+# GardenHQ — Claude Code project guide
 
-Tend helps home gardeners and small hobby farms **map, organize, and improve their gardens year over year**. The hero is a beautiful, spatially-true, semantic-zoom **map** of the garden — zones, beds, plants, and the systems (irrigation, covers, sensors) that serve them.
+GardenHQ helps home gardeners and small hobby farms **map, organize, and improve their gardens year over year**. The hero is a beautiful, spatially-true, semantic-zoom **map** of the garden — zones, beds, plants, and the systems (irrigation, covers, sensors) that serve them.
 
 **v1 scope:** map-first, manual/guided entry, a single garden. Bed types, a simple irrigation representation, per-bed notes/tasks. (Voice→structure ingestion is v1.5; recommendations come later.)
 

@@ -1,16 +1,16 @@
-# Tend — Product Brief
+# GardenHQ — Product Brief
 
-*Living document. Working name: **Tend**. Updated after the garden-walkthrough session.*
+*Living document. Name: **GardenHQ** (formerly Tend). Updated after the garden-walkthrough session.*
 
 ---
 
 ## One-liner
 
-Tend helps home gardeners and small hobby farms **map, organize, and improve their gardens year over year** — starting with a beautiful, spatially-true map of what's growing where, and building toward ongoing maintenance, observation, and data-driven refinement.
+GardenHQ helps home gardeners and small hobby farms **map, organize, and improve their gardens year over year** — starting with a beautiful, spatially-true map of what's growing where, and building toward ongoing maintenance, observation, and data-driven refinement.
 
 ## The core idea
 
-The heart of Tend is **visual clarity**: a really nice map of the whole garden — zones, beds, plants, and the systems that serve them — so a grower sees what's happening at a glance. From that foundation, Tend supports the ongoing work of *managing, observing, and refining* the garden, and proactively recommends improvements.
+The heart of GardenHQ is **visual clarity**: a really nice map of the whole garden — zones, beds, plants, and the systems that serve them — so a grower sees what's happening at a glance. From that foundation, GardenHQ supports the ongoing work of *managing, observing, and refining* the garden, and proactively recommends improvements.
 
 **Guiding analogy — the "Sonos model":** a garden is a composable system of components grouped into zones that work together, not a flat list of plants. The walkthrough showed this is more literal than expected: covers, sensors, and irrigation nodes are **movable components reassigned between beds**, exactly like speakers between Sonos zones.
 
@@ -62,7 +62,7 @@ The long-game purpose: **understand and improve the garden's performance year ov
 Validated by this very walkthrough: ingest a spoken garden tour and auto-extract zones, beds, bed types, plants/varieties, systems (irrigation/covers/sensors), and a task list.
 
 **Key finding:** voice yields a complete *relational/topological model + inventory + tasks*, but **not spatial coordinates**. Flow:
-> **record → Tend auto-drafts structure & inventory → human confirms & arranges on the map** (drag to place, or anchor to an overhead photo).
+> **record → GardenHQ auto-drafts structure & inventory → human confirms & arranges on the map** (drag to place, or anchor to an overhead photo).
 
 It nails the tedious part (cataloguing 150+ plants); the human supplies geometry.
 
@@ -72,7 +72,7 @@ A walkthrough also generates a **task/punch-list for free** — so the output is
 
 - **Plant / species ID** — for unknown varieties, "question-mark" plants, the mystery plum.
 - **Sensor feeds** — Govee temp/humidity (and future sensors).
-- **Tend as the canonical plant label / source of truth** — solves physical labels getting knocked out and illegible handwriting. Quietly one of the most valuable: the app is the label the physical garden keeps losing.
+- **GardenHQ as the canonical plant label / source of truth** — solves physical labels getting knocked out and illegible handwriting. Quietly one of the most valuable: the app is the label the physical garden keeps losing.
 
 ---
 
