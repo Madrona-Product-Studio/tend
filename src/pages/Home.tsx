@@ -64,9 +64,8 @@ export default function Home() {
             <p className="mt-4 max-w-md text-clay text-[17px] sm:text-xl leading-[1.5]">
               Map, organize, and improve your food garden — year over year.
             </p>
-            <p className="mt-3 max-w-sm text-[13px] sm:text-[14px] leading-[1.55] text-ink70">
-              Your zones, beds, and plantings — with the sensors, covers, and
-              watering that keep them alive — on one living map.
+            <p className="mt-3 text-[13px] sm:text-[14px] font-medium text-ink70">
+              Every bed, plant, and sensor — one living map.
             </p>
             <div className="mt-9">
               <Link
@@ -76,7 +75,6 @@ export default function Home() {
                 View demo
               </Link>
             </div>
-            <p className="mt-4 text-[12px] font-medium text-clay">Demo mode · sample garden</p>
           </div>
         </section>
 
@@ -84,7 +82,7 @@ export default function Home() {
           <Label className="text-clay">Why a map</Label>
           <Breath className="mt-3 max-w-2xl">
             A garden is a system — beds, water, covers, sensors. GardenHQ puts
-            the whole thing on one live map.
+            the whole thing on one living map.
           </Breath>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-10">
@@ -96,14 +94,19 @@ export default function Home() {
             ))}
           </div>
 
-          <figure className="m-0 mt-12 rounded-card border border-line bg-card p-2 sm:p-3">
-            <img
-              src="/images/gardenhq/product-zone-map.png"
-              alt="Zone map of a garden: nine beds drawn in place, with live temperature readings on the pepper bed and greenhouse"
-              loading="lazy"
-              decoding="async"
-              className="block w-full rounded-lg"
-            />
+          {/* Real product UI, sized for the viewer: phones get the bed view
+              (portrait, legible); desktop gets the zone map (wide). */}
+          <figure className="m-0 mt-12 mx-auto max-w-[420px] sm:max-w-none rounded-card border border-line bg-card p-2 sm:p-3">
+            <picture>
+              <source media="(max-width: 767px)" srcSet="/images/gardenhq/product-bed-live.png" />
+              <img
+                src="/images/gardenhq/product-zone-map.png"
+                alt="GardenHQ in action: live temperature, humidity, and reservoir readings on the garden map"
+                loading="lazy"
+                decoding="async"
+                className="block w-full rounded-lg"
+              />
+            </picture>
           </figure>
 
           <div className="mt-12 flex items-center justify-center gap-6">
