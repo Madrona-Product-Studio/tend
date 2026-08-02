@@ -23,10 +23,10 @@ export default function Home() {
   return (
     <>
       {/* React 19 native document metadata (hoisted to <head>) */}
-      <title>GardenHQ — map and manage your garden</title>
+      <title>GardenHQ · map and manage your garden</title>
       <meta
         name="description"
-        content="A beautiful, spatially-true map of your food garden — zones, beds, plants, and the systems that serve them."
+        content="A beautiful, spatially-true map of your food garden: zones, beds, plants, and the systems that serve them."
       />
       <link rel="canonical" href="https://gardenhq.app/" />
 

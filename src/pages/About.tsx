@@ -9,25 +9,25 @@ import { StudioContact, MarketingFooter } from '@components/MadronaContact';
 const SECTIONS = [
   {
     title: 'A map, not a list',
-    body: `Most garden apps are spreadsheets wearing leaves. GardenHQ starts from the way a gardener actually thinks — spatially. Zones, beds, and plantings are drawn where they really are, and you drill in the way you walk the garden: the whole plot, then a zone, then a single bed and what's growing in it.`,
+    body: `Most garden apps are spreadsheets wearing leaves. GardenHQ starts from the way a gardener actually thinks: spatially. Zones, beds, and plantings are drawn where they really are, and you drill in the way you walk the garden: the whole plot, then a zone, then a single bed and what's growing in it.`,
   },
   {
     title: 'The Sonos model',
-    body: `A garden isn't a flat list of plants — it's a composable system. Covers, sensors, and irrigation nodes are a shared, limited inventory that moves between beds as the season demands, exactly like speakers moving between rooms. GardenHQ treats them as first-class objects: reassign a heat cover to the pea bed, and the map knows.`,
+    body: `A garden isn't a flat list of plants. It's a composable system: covers, sensors, and irrigation nodes are a shared, limited inventory that moves between beds as the season demands, exactly like speakers moving between rooms. GardenHQ treats them as first-class objects. Reassign a heat cover to the pea bed, and the map knows.`,
   },
   {
     title: 'A living map',
-    body: `Bed state lives on the map — reservoir levels, greenhouse temperature and humidity, irrigation on or off. That turns a diagram into a spatial dashboard: open the app and see that the pepper bed is running hot before you've put your boots on.`,
+    body: `Bed state lives on the map: reservoir levels, greenhouse temperature and humidity, irrigation on or off. That turns a diagram into a spatial dashboard. Open the app and see that the pepper bed is running hot before you've put your boots on.`,
   },
   {
     title: 'Year over year',
-    body: `The long game is memory. Notes, tasks, and observations accumulate into a record of what actually worked — which cover made the tomatoes bigger, which bed bolts first, where the soil runs shallow — so every season starts smarter than the last.`,
+    body: `The long game is memory. Notes, tasks, and observations accumulate into a record of what actually worked: which cover made the tomatoes bigger, which bed bolts first, where the soil runs shallow. Every season starts smarter than the last.`,
   },
 ];
 
 const ROADMAP: { label: string; text: string }[] = [
-  { label: 'Today', text: 'The living map — zones, beds, plantings, movable equipment, live state, tasks and observations. Local-first and offline-capable, because gardens have terrible signal.' },
-  { label: 'Next', text: 'Accounts and sync, and the voice walkthrough: record yourself walking the garden, and GardenHQ drafts the beds, plants, and punch-list for you — you just arrange the map.' },
+  { label: 'Today', text: 'The living map: zones, beds, plantings, movable equipment, live state, tasks and observations. Local-first and offline-capable, because gardens have terrible signal.' },
+  { label: 'Next', text: 'Accounts and sync, and the voice walkthrough: record yourself walking the garden, and GardenHQ drafts the beds, plants, and punch-list for you. You just arrange the map.' },
   { label: 'Later', text: 'Season history and recommendations, driven by plant attributes and your garden’s own record.' },
 ];
 
@@ -37,7 +37,7 @@ export default function About() {
       <title>About · GardenHQ</title>
       <meta
         name="description"
-        content="Why GardenHQ exists: a spatially-true, living map of your food garden — the Sonos model for beds, covers, sensors, and irrigation — built for year-over-year improvement."
+        content="Why GardenHQ exists: a spatially-true, living map of your food garden, built for year-over-year improvement."
       />
       <link rel="canonical" href="https://gardenhq.app/about" />
 
@@ -53,7 +53,7 @@ export default function About() {
           </h1>
           <Breath className="mt-5 max-w-xl">
             GardenHQ helps home gardeners and small hobby farms map, organize,
-            and improve their gardens — year over year.
+            and improve their gardens, year over year.
           </Breath>
         </div>
 

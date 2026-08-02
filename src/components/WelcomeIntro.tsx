@@ -85,7 +85,7 @@ function WelcomeDialog({ tree, gardenId, onClose }: {
           <div>
             <div className="text-[13px] font-semibold text-ink">Systems on the map</div>
             <p className="m-0 mt-0.5 text-[13px] leading-[1.55] text-clay">
-              Sensors, reservoirs, covers, and irrigation live here too — state, not decoration.
+              Sensors, reservoirs, covers, and irrigation live here too: state, not decoration.
             </p>
           </div>
           {highlight && (
@@ -104,7 +104,7 @@ function WelcomeDialog({ tree, gardenId, onClose }: {
 
         <p className="m-0 mt-4 text-[11.5px] leading-[1.55] text-muted">
           What you&rsquo;re seeing: a real garden&rsquo;s season, stored only in
-          your browser. Explore freely — nothing leaves your device.
+          your browser. Explore freely; nothing leaves your device.
         </p>
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
@@ -127,7 +127,7 @@ function WelcomeDialog({ tree, gardenId, onClose }: {
             className="font-semibold text-clay hover:text-ink transition-colors">
             Madrona Product Studio
           </a>
-          {' '}— want one of your own, or one for what you run? Say hello.
+          . Want one of your own, or one for what you run? Say hello.
         </p>
       </div>
     </>
