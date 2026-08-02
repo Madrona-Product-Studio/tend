@@ -22,7 +22,7 @@ export default defineConfig({
     // Installable, offline-capable PWA — gardens have poor signal.
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['favicon.svg', 'icons/icon-32.png', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
         name: 'GardenHQ — garden map & manager',
         short_name: 'GardenHQ',

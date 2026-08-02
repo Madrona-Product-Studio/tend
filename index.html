@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- SVG for modern browsers; PNG fallbacks for Safari (no SVG favicon support). -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#b23a2e" />
@@ -50,7 +53,21 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Pre-hydration loading state: shown until React mounts and replaces it.
+         Inline styles only (no bundle dependency); colors mirror the tokens. -->
+    <div id="root">
+      <div style="min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#f5f1ea">
+        <svg width="44" height="44" viewBox="0 0 100 100" fill="none" stroke="#b23a2e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="animation:ghq-breathe 1.6s ease-in-out infinite" aria-hidden="true">
+          <path d="M50 14 C30 36 30 64 50 86 C70 64 70 36 50 14 Z" />
+          <path d="M50 20 L50 80" stroke-width="1.9" />
+        </svg>
+        <span style="font:600 11px/1 Inter,ui-sans-serif,system-ui,sans-serif;color:#6f6657;letter-spacing:0.16em;text-transform:uppercase">GardenHQ</span>
+      </div>
+      <style>
+        @keyframes ghq-breathe { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
+        @media (prefers-reduced-motion: reduce) { #root svg { animation: none !important } }
+      </style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
