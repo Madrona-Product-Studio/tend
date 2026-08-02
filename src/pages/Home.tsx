@@ -101,12 +101,15 @@ export default function Home() {
             />
           </figure>
 
-          <div className="mt-12 text-center">
+          <div className="mt-12 flex items-center justify-center gap-6">
             <Link
               to="/garden/demo"
               className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
             >
               View demo
+            </Link>
+            <Link to="/about" className="text-[13px] font-semibold text-clay hover:text-ink transition-colors">
+              About GardenHQ
             </Link>
           </div>
 

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 
 const Home = lazy(() => import('@pages/Home'));
+const About = lazy(() => import('@pages/About'));
 const GardenView = lazy(() => import('@pages/garden/GardenView'));
 const ZoneView = lazy(() => import('@pages/garden/ZoneView'));
 const BedView = lazy(() => import('@pages/garden/BedView'));
@@ -22,6 +23,7 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
           <Route path="/garden/:gardenId" element={<GardenView />} />
           <Route path="/garden/:gardenId/zone/:zoneId" element={<ZoneView />} />
           <Route path="/garden/:gardenId/bed/:bedId" element={<BedView />} />
