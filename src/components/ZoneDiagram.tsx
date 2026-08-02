@@ -1,7 +1,7 @@
 // A spatially-true diagram of a zone's beds — each bed drawn at its footprint
 // with its shape (rectangle or ellipse). Used as the Zone Map lens, as a mini
 // preview inside Garden zone cards, and as the base for the layout editor.
-import { SANS, T } from '@design/tokens';
+import { SANS, T, hexA } from '@design/tokens';
 import type { Rect, ZoneLayoutItem } from '@/domain';
 
 export function ZoneDiagram({ items, bounds, onSelect, selectedId, mini = false, maxHeight }: {
@@ -33,6 +33,10 @@ export function ZoneDiagram({ items, bounds, onSelect, selectedId, mini = false,
             {it.shape === 'ellipse'
               ? <ellipse cx={r.x + r.w / 2} cy={r.y + r.h / 2} rx={r.w / 2} ry={r.h / 2} {...common} />
               : <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={fs * 0.45} {...common} />}
+            {/* Faint crop-category wash — data-viz, not chrome (see cropColors). */}
+            {it.tint && (it.shape === 'ellipse'
+              ? <ellipse cx={r.x + r.w / 2} cy={r.y + r.h / 2} rx={r.w / 2} ry={r.h / 2} fill={hexA(it.tint, 0.12)} stroke="none" />
+              : <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={fs * 0.45} fill={hexA(it.tint, 0.12)} stroke="none" />)}
             {lines.map((ln, li) => (
               <text key={li} x={r.x + r.w / 2}
                 y={r.y + r.h / 2 + (li - (lines.length - 1) / 2) * fs * 1.15}

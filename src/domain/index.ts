@@ -40,6 +40,19 @@ export const equipmentForBed = (t: GardenTree, bedId: ID) => ({
 
 export const tasksForBed = (t: GardenTree, bedId: ID) => t.tasks.filter((tk) => tk.bedId === bedId);
 
+/** The most common crop category among a bed's plantings, if any. */
+export function dominantCrop(t: GardenTree, bedId: ID): CropCategory | undefined {
+  const counts = new Map<CropCategory, number>();
+  for (const p of plantsInBed(t, bedId)) {
+    const c = p.attributes.cropCategory;
+    counts.set(c, (counts.get(c) ?? 0) + 1);
+  }
+  let best: CropCategory | undefined;
+  let bestN = 0;
+  for (const [c, n] of counts) if (n > bestN) { best = c; bestN = n; }
+  return best;
+}
+
 // ── Movable equipment (the "Sonos model") ───────────────────────────────────────
 // Covers and sensors are a shared, limited inventory relocated between beds.
 export type EquipmentKind = 'cover' | 'sensor';
@@ -97,7 +110,7 @@ export function bedRowsOf(plants: Plant[], layout?: BedLayout): { layout: BedLay
 
 // ── Zone diagram (spatial bed layout) ───────────────────────────────────────────
 
-export interface ZoneLayoutItem { id: ID; label: string; rect: Rect; shape: BedShape; accent: boolean; live?: boolean; liveLabel?: string }
+export interface ZoneLayoutItem { id: ID; label: string; rect: Rect; shape: BedShape; accent: boolean; live?: boolean; liveLabel?: string; tint?: string }
 
 const bboxOf = (rects: Rect[]): Rect => {
   if (!rects.length) return { x: 0, y: 0, w: 100, h: 60 };
