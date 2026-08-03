@@ -4,18 +4,43 @@ import { Breath, Label, Mark } from '@design/primitives';
 import { T } from '@design/tokens';
 import { StudioContact, MarketingFooter } from '@components/MadronaContact';
 
-const WHY = [
+// The product thesis, condensed from the About page. Each pillar is a single
+// idea a first-time viewer should leave with.
+const PILLARS = [
   {
-    title: 'Spatially true',
-    body: 'Zones, beds, and plantings drawn where they actually are. Drill from the whole garden down to a single plant.',
+    title: 'A map, not a list',
+    body: 'Most garden apps are spreadsheets wearing leaves. GardenHQ draws zones, beds, and plantings where they actually are, and you drill in the way you walk the garden.',
   },
   {
-    title: 'Live systems',
-    body: 'Sensors, reservoirs, covers, and irrigation are part of the map: 88° in the pepper bed, reservoir at 60%, right now.',
+    title: 'Movable systems',
+    body: 'Covers, sensors, and irrigation are a shared, limited inventory that moves between beds as the season demands, like speakers between rooms. Reassign a heat cover, and the map knows.',
+  },
+  {
+    title: 'Live state',
+    body: 'Reservoir levels, greenhouse temperature and humidity, irrigation on or off, all on the map. See that the pepper bed is running hot before you put your boots on.',
   },
   {
     title: 'Year over year',
-    body: 'Notes, tasks, and observations accumulate into a record of what worked, so next season starts smarter.',
+    body: 'Notes, tasks, and observations build into a record of what actually worked, so every season starts smarter than the last.',
+  },
+];
+
+// The three-beat "how it works" walk: lay it out, wire up the systems, improve.
+const STEPS = [
+  {
+    n: '01',
+    title: 'Map your garden',
+    body: 'Lay out zones, beds, and what is planted where. Start from a bed preset or draw your own.',
+  },
+  {
+    n: '02',
+    title: 'Add the systems',
+    body: 'Place sensors, covers, reservoirs, and irrigation, then move them between beds as the season changes.',
+  },
+  {
+    n: '03',
+    title: 'Improve every season',
+    body: 'Track tasks and observations against each bed, and carry the record forward year over year.',
   },
 ];
 
@@ -82,24 +107,27 @@ export default function Home() {
         </section>
 
         <section className="mx-auto max-w-4xl px-6 py-16 sm:px-10 sm:py-24">
-          <Label className="text-clay">Why a map</Label>
-          <Breath className="mt-3 max-w-2xl">
-            A garden is a system: beds, water, covers, sensors. GardenHQ puts
-            the whole thing on one living map.
+          <Label className="text-clay">Why GardenHQ</Label>
+          <h2 className="mt-3 max-w-2xl text-3xl sm:text-4xl font-bold tracking-[-0.03em] leading-[1.05] text-ink">
+            The garden is a system, not a spreadsheet.
+          </h2>
+          <Breath className="mt-4 max-w-2xl">
+            Beds, water, covers, sensors: GardenHQ puts the whole thing on one
+            living map, and keeps its state in front of you.
           </Breath>
 
-          <div className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-10">
-            {WHY.map((w) => (
-              <div key={w.title}>
-                <h2 className="m-0 text-[15px] font-semibold tracking-[-0.01em] text-ink">{w.title}</h2>
-                <p className="m-0 mt-1.5 text-[13.5px] leading-[1.6] text-clay">{w.body}</p>
+          <div className="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2">
+            {PILLARS.map((p) => (
+              <div key={p.title}>
+                <h3 className="m-0 text-[16px] font-semibold tracking-[-0.01em] text-ink">{p.title}</h3>
+                <p className="m-0 mt-2 text-[14px] leading-[1.65] text-clay">{p.body}</p>
               </div>
             ))}
           </div>
 
           {/* Real product UI, sized for the viewer: phones get the bed view
               (portrait, legible); desktop gets the zone map (wide). */}
-          <figure className="m-0 mt-12 mx-auto max-w-[420px] sm:max-w-none rounded-card border border-line bg-card p-2 sm:p-3">
+          <figure className="m-0 mt-14 mx-auto max-w-[420px] sm:max-w-none rounded-card border border-line bg-card p-2 sm:p-3">
             <picture>
               <source media="(max-width: 767px)" srcSet="/images/gardenhq/product-bed-live.png" />
               <img
@@ -112,7 +140,20 @@ export default function Home() {
             </picture>
           </figure>
 
-          <div className="mt-12 flex items-center justify-center gap-6">
+          <div className="mt-16 border-t border-line pt-12">
+            <Label className="text-clay">How it works</Label>
+            <div className="mt-8 grid gap-8 sm:grid-cols-3 sm:gap-10">
+              {STEPS.map((s) => (
+                <div key={s.n}>
+                  <span className="text-[13px] font-bold tracking-[0.06em] text-seal">{s.n}</span>
+                  <h3 className="m-0 mt-2 text-[16px] font-semibold tracking-[-0.01em] text-ink">{s.title}</h3>
+                  <p className="m-0 mt-1.5 text-[14px] leading-[1.65] text-clay">{s.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-16 flex items-center justify-center gap-6">
             <Link
               to="/garden/demo"
               className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
