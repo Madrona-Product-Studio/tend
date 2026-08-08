@@ -7,23 +7,29 @@ import { ZoneDiagram } from '@components/ZoneDiagram';
 import { BedCard, AddBedCard } from '@components/BedCard';
 import { TasksSection } from '@components/TasksSection';
 import { NewBedDialog } from './NewBedDialog';
+import { NewZoneDialog } from './NewZoneDialog';
 import { WelcomeIntro } from '@components/WelcomeIntro';
 import { bedsInZone, zoneLayout, bedLive, dominantCrop, SUN_LABEL, type GardenTree, type Zone } from '@/domain';
 import { Label, Breath, Hairline, Marker } from '@design/primitives';
 import { CROP_DOT } from '@design/cropColors';
 
 const pad = (n: number) => String(n).padStart(2, '0');
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 export default function GardenView() {
   const { gardenId = 'demo' } = useParams<{ gardenId: string }>();
-  const { tree, status, toggleTask, addTask, removeTask, addBed } = useGarden(gardenId);
+  const { tree, status, toggleTask, addTask, removeTask, addBed, addZone, renameGarden } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const navigate = useNavigate();
-  const [addingZone, setAddingZone] = useState<Zone | null>(null);
+  const [addBedTo, setAddBedTo] = useState<Zone | null>(null);
+  const [newZone, setNewZone] = useState(false);
 
   if (status !== 'ready' || !tree) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-muted">{status === 'error' ? 'Something went wrong.' : 'Loading the garden…'}</div>;
   }
+
+  const isDemo = gardenId === 'demo';
+  const empty = tree.zones.length === 0;
 
   return (
     <>
@@ -31,8 +37,9 @@ export default function GardenView() {
       <main className="min-h-screen max-w-4xl mx-auto px-6 py-10 sm:px-10">
         <LevelHeader
           crumbs={[]} title={tree.garden.name}
-          meta={`${tree.zones.length} zones · ${tree.beds.length} beds · ${tree.plants.length} plantings`}
-          lens={lens} onLens={setLens}
+          meta={`${count(tree.zones.length, 'zone')} · ${count(tree.beds.length, 'bed')} · ${count(tree.plants.length, 'planting')}`}
+          lens={empty ? undefined : lens} onLens={empty ? undefined : setLens}
+          onRename={isDemo ? undefined : renameGarden}
           actions={<Link to={`/garden/${gardenId}/equipment`} className="rounded-card border border-line px-3 py-2 text-[12px] font-semibold text-ink70 hover:border-ink70 transition-colors">Equipment</Link>}
         />
 
@@ -40,6 +47,9 @@ export default function GardenView() {
           <GardenNow tree={tree} gardenId={gardenId} />
         </div>
 
+        {empty ? (
+          <EmptyGarden onAddZone={() => setNewZone(true)} />
+        ) : (
         <div className="mt-4">
           {lens === 'map' ? (
             <div className="grid sm:grid-cols-2 gap-4">
@@ -69,13 +79,20 @@ export default function GardenView() {
                   </Link>
                 );
               })}
+              <AddZoneCard onClick={() => setNewZone(true)} />
             </div>
           ) : (
             <>
               {tree.zones.map((z, i) => (
                 <ZoneBlock key={z.id} tree={tree} zone={z} index={i + 1} total={tree.zones.length}
-                  gardenId={gardenId} onAddBed={() => setAddingZone(z)} />
+                  gardenId={gardenId} onAddBed={() => setAddBedTo(z)} />
               ))}
+              <div className="mb-12">
+                <button type="button" onClick={() => setNewZone(true)}
+                  className="tactile w-full rounded-card border border-dashed border-line p-4 text-left text-[14px] font-semibold text-muted hover:border-ink70 hover:text-ink70">
+                  + Add a zone
+                </button>
+              </div>
               <section className="mb-12">
                 <TasksSection heading="Punch-list" tasks={tree.tasks} onToggle={toggleTask}
                   onAdd={(text) => addTask({ text })} onDelete={removeTask}
@@ -84,16 +101,61 @@ export default function GardenView() {
             </>
           )}
         </div>
+        )}
       </main>
 
-      {gardenId === 'demo' && <WelcomeIntro tree={tree} gardenId={gardenId} />}
+      {isDemo && <WelcomeIntro tree={tree} gardenId={gardenId} />}
 
-      {addingZone && (
-        <NewBedDialog zoneId={addingZone.id} zoneName={addingZone.name}
-          onClose={() => setAddingZone(null)}
-          onCreate={(bed) => { void addBed(bed); setAddingZone(null); navigate(`/garden/${gardenId}/bed/${bed.id}`); }} />
+      {addBedTo && (
+        <NewBedDialog zoneId={addBedTo.id} zoneName={addBedTo.name}
+          onClose={() => setAddBedTo(null)}
+          onCreate={(bed) => { void addBed(bed); setAddBedTo(null); navigate(`/garden/${gardenId}/bed/${bed.id}`); }} />
+      )}
+
+      {newZone && (
+        <NewZoneDialog gardenId={gardenId}
+          onClose={() => setNewZone(false)}
+          onCreate={(zone) => { void addZone(zone); setNewZone(false); }} />
       )}
     </>
+  );
+}
+
+// A dashed "add" tile that matches AddBedCard, sized to sit in the zone grid.
+function AddZoneCard({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick}
+      className="tactile rounded-card border border-dashed border-line p-4 text-left text-[14px] font-semibold text-muted hover:border-ink70 hover:text-ink70 min-h-[180px] flex items-center justify-center">
+      + Add a zone
+    </button>
+  );
+}
+
+// First-run canvas for a freshly built garden: name the model (zones → beds →
+// plantings) and get the user to their first real action.
+function EmptyGarden({ onAddZone }: { onAddZone: () => void }) {
+  return (
+    <div className="mt-8 rounded-card border border-dashed border-line bg-paper p-8 sm:p-12 text-center">
+      <div className="mx-auto max-w-md">
+        <h2 className="text-2xl font-bold tracking-[-0.025em] text-ink">Let&rsquo;s build your garden</h2>
+        <Breath className="mt-3">
+          Start with a zone: an area of your garden like a bed row, the
+          greenhouse, or the patio. Then add beds, then what&rsquo;s planted
+          where.
+        </Breath>
+        <div className="mt-6">
+          <button type="button" onClick={onAddZone}
+            className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90">
+            Add your first zone
+          </button>
+        </div>
+        <div className="mt-8 flex items-center justify-center gap-2 text-[9px] font-bold uppercase tracking-[0.16em] text-faint">
+          <span>Zones</span><span aria-hidden>›</span>
+          <span>Beds</span><span aria-hidden>›</span>
+          <span>Plantings</span>
+        </div>
+      </div>
+    </div>
   );
 }
 

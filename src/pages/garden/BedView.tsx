@@ -5,7 +5,8 @@ import { useLens } from '@/hooks/useLens';
 import { LevelHeader } from '@components/LevelChrome';
 import {
   plantsInBed, bedSystems, bedRowsOf, tasksForBed, observationsForBed, observationsForPlant,
-  bedLive, hasLive, bedWater, CROP_LABEL, type BedWater, type Plant, type SystemRow,
+  bedLive, hasLive, bedWater, CROP_LABEL,
+  type BedWater, type CropCategory, type Plant, type Season, type SystemRow,
 } from '@/domain';
 import { CROP_DOT } from '@design/cropColors';
 import { Label, Hairline } from '@design/primitives';
@@ -17,7 +18,7 @@ import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
   const { gardenId = 'demo', bedId = '' } = useParams<{ gardenId: string; bedId: string }>();
-  const { tree, status, setPlantArrangement, addPlant, removePlant, setBedLayout, renameBed, addObservation, removeObservation, toggleTask, addTask, removeTask, setIrrigationOn } = useGarden(gardenId);
+  const { tree, status, setPlantArrangement, addPlant, removePlant, updatePlant, setBedLayout, renameBed, addObservation, removeObservation, toggleTask, addTask, removeTask, setIrrigationOn, addIrrigation } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const [editing, setEditing] = useState(false);
   const [plantId, setPlantId] = useState<string | null>(null);
@@ -47,6 +48,7 @@ export default function BedView() {
   const planting = plantId ? plants.find((p) => p.id === plantId) ?? null : null;
 
   const addNote = (text: string, plantId2?: string) => void addObservation({ bedId: bed.id, plantId: plantId2, text });
+  const addDripLine = () => void addIrrigation({ id: crypto.randomUUID(), gardenId, bedId: bed.id, on: false, kind: 'emitters' });
 
   return (
     <>
@@ -94,7 +96,7 @@ export default function BedView() {
 
                 <Hairline className="my-6" />
                 <div className="flex flex-col gap-6">
-                  <WaterControl water={water} onToggle={(on) => { if (water.node) void setIrrigationOn(water.node.id, on); }} />
+                  <WaterControl water={water} onToggle={(on) => { if (water.node) void setIrrigationOn(water.node.id, on); }} onAddNode={addDripLine} />
                   {equipChips.length > 0 && (
                     <div>
                       <div className="mb-2"><Label className="text-clay">Equipment</Label></div>
@@ -132,8 +134,9 @@ export default function BedView() {
           </div>
 
           {planting && (
-            <PlantingPanel bed={bed} planting={planting} notes={observationsForPlant(tree, planting.id)}
+            <PlantingPanel key={planting.id} bed={bed} planting={planting} notes={observationsForPlant(tree, planting.id)}
               onAddNote={(text) => addNote(text, planting.id)} onDeleteNote={removeObservation}
+              onSave={(patch) => void updatePlant(planting.id, patch)}
               onClose={() => setPlantId(null)} />
           )}
         </div>
@@ -208,7 +211,7 @@ function Lane({ index, plants, vertical, last, selectedId, onSelect }: {
 }
 
 // Irrigation, framed to answer "is this bed watered, and if not why?" + a toggle.
-function WaterControl({ water, onToggle }: { water: BedWater; onToggle: (on: boolean) => void }) {
+function WaterControl({ water, onToggle, onAddNode }: { water: BedWater; onToggle: (on: boolean) => void; onAddNode: () => void }) {
   const n = water.node;
   const kindLabel = n?.kind === 'misters' ? 'Misters' : n?.kind === 'soaker' ? 'Soaker hose' : n?.emitterCount ? `${n.emitterCount} emitters` : 'Drip';
   return (
@@ -225,9 +228,15 @@ function WaterControl({ water, onToggle }: { water: BedWater; onToggle: (on: boo
           {n.note && <span className="text-[12px] text-muted">· {n.note}</span>}
         </div>
       ) : (
-        <p className="text-[13px] text-clay">
-          {water.selfWatering ? 'Self-watering — wicking floor + reservoir, no drip line.' : 'Hand-watered — not on the drip system.'}
-        </p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <p className="text-[13px] text-clay">
+            {water.selfWatering ? 'Self-watering — wicking floor + reservoir, no drip line.' : 'Hand-watered — not on the drip system.'}
+          </p>
+          <button type="button" onClick={onAddNode}
+            className="rounded-full border border-line px-3 py-1.5 text-[12px] font-semibold text-ink70 hover:border-ink70 transition-colors">
+            + Add drip line
+          </button>
+        </div>
       )}
     </div>
   );
@@ -243,14 +252,16 @@ function SystemChip({ row }: { row: SystemRow }) {
   );
 }
 
-function PlantingPanel({ bed, planting, notes, onAddNote, onDeleteNote, onClose }: {
+function PlantingPanel({ bed, planting, notes, onAddNote, onDeleteNote, onSave, onClose }: {
   bed: { name: string; code?: string; category?: string };
   planting: Plant;
   notes: ReturnType<typeof observationsForPlant>;
   onAddNote: (text: string) => void;
   onDeleteNote: (id: string) => void;
+  onSave: (patch: Partial<Plant>) => void;
   onClose: () => void;
 }) {
+  const [editing, setEditing] = useState(false);
   const status = planting.issue ?? planting.note ?? 'Looks healthy';
   return (
     <aside aria-label={`${planting.name} detail`}
@@ -258,31 +269,146 @@ function PlantingPanel({ bed, planting, notes, onAddNote, onDeleteNote, onClose 
                  fixed inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl border-t-2
                  lg:static lg:z-auto lg:max-h-none lg:w-[340px] lg:shrink-0 lg:sticky lg:top-10 lg:rounded-card lg:border">
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <div className="font-mono text-[11px] text-seal">{bed.code ? `${bed.code} · planting` : 'Planting'}</div>
           <h2 className="mt-1 text-xl font-bold tracking-[-0.02em] text-ink">{planting.name}{planting.variety ? ` ${planting.variety}` : ''}</h2>
         </div>
-        <button type="button" onClick={onClose} aria-label="Close" className="text-muted hover:text-ink text-lg leading-none">✕</button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button type="button" onClick={() => setEditing((v) => !v)} aria-pressed={editing}
+            className={`rounded-card px-2.5 py-1.5 text-[12px] font-semibold transition-colors ${editing ? 'bg-ink text-card' : 'border border-line text-ink70 hover:border-ink70'}`}>
+            {editing ? 'Cancel' : 'Edit'}
+          </button>
+          <button type="button" onClick={onClose} aria-label="Close" className="text-muted hover:text-ink text-lg leading-none">✕</button>
+        </div>
       </div>
 
       <Hairline className="my-4" />
-      <Field label="Bed">{bed.name}</Field>
-      <Field label="Group">{CROP_LABEL[planting.attributes.cropCategory]}{bed.category ? ` · ${bed.category}` : ''}</Field>
-      <Field label="Status"><span className={planting.issue ? 'text-seal font-medium' : 'text-ink70'}>{status}</span></Field>
 
-      <div className="mt-4 pt-4 border-t border-line-soft">
-        <NotesSection notes={notes} onAdd={onAddNote} onDelete={onDeleteNote} />
-      </div>
-      <Block label="Species">
-        <Species planting={planting} />
-      </Block>
-      <Block label="Photos">
-        <p className="text-[12.5px] text-muted leading-[1.55]">Add a photo for reference — the mystery plum, a pest, a label you can’t read. (Arrives with cloud sync.)</p>
-      </Block>
-      <Block label="History">
-        <p className="text-[12.5px] text-muted leading-[1.55]">Seasons tracked: 1 (current). Future seasons stack here to show how {planting.name} performs year over year.</p>
-      </Block>
+      {editing ? (
+        <PlantEditForm planting={planting} onSave={(patch) => { onSave(patch); setEditing(false); }} />
+      ) : (
+        <>
+          <Field label="Bed">{bed.name}</Field>
+          <Field label="Group">{CROP_LABEL[planting.attributes.cropCategory]}{bed.category ? ` · ${bed.category}` : ''}</Field>
+          <Field label="Status"><span className={planting.issue ? 'text-seal font-medium' : 'text-ink70'}>{status}</span></Field>
+
+          <div className="mt-4 pt-4 border-t border-line-soft">
+            <NotesSection notes={notes} onAdd={onAddNote} onDelete={onDeleteNote} />
+          </div>
+          <Block label="Species">
+            <Species planting={planting} />
+          </Block>
+          <Block label="Photos">
+            <p className="text-[12.5px] text-muted leading-[1.55]">Add a photo for reference — the mystery plum, a pest, a label you can’t read. (Arrives with cloud sync.)</p>
+          </Block>
+          <Block label="History">
+            <p className="text-[12.5px] text-muted leading-[1.55]">Seasons tracked: 1 (current). Future seasons stack here to show how {planting.name} performs year over year.</p>
+          </Block>
+        </>
+      )}
     </aside>
+  );
+}
+
+const FIELD_LABEL = 'text-[9.5px] font-bold uppercase tracking-[0.16em] text-muted';
+const CONTROL = 'mt-1 w-full rounded-card border border-line focus:border-ink px-3 py-2 text-[13px] text-ink outline-none bg-card';
+
+// Edit a planting's identity + the attributes that drive future recommendations.
+function PlantEditForm({ planting, onSave }: { planting: Plant; onSave: (patch: Partial<Plant>) => void }) {
+  const a = planting.attributes;
+  const [name, setName] = useState(planting.name);
+  const [variety, setVariety] = useState(planting.variety ?? '');
+  const [cat, setCat] = useState<CropCategory>(a.cropCategory);
+  const [season, setSeason] = useState<Season | ''>(a.season ?? '');
+  const [water, setWater] = useState<'' | 'low' | 'medium' | 'high'>(a.waterDemand ?? '');
+  const [pollination, setPollination] = useState<'' | 'yes' | 'no'>(a.pollinationRequired === undefined ? '' : a.pollinationRequired ? 'yes' : 'no');
+  const [bolting, setBolting] = useState(!!a.boltingRisk);
+  const [note, setNote] = useState(planting.note ?? '');
+  const [issue, setIssue] = useState(planting.issue ?? '');
+
+  const cropOptions = Object.keys(CROP_LABEL) as CropCategory[];
+
+  const save = () => {
+    if (!name.trim()) return;
+    onSave({
+      name: name.trim(),
+      variety: variety.trim() || undefined,
+      note: note.trim() || undefined,
+      issue: issue.trim() || undefined,
+      attributes: {
+        ...a,
+        cropCategory: cat,
+        season: season || undefined,
+        waterDemand: water || undefined,
+        pollinationRequired: pollination === '' ? undefined : pollination === 'yes',
+        boltingRisk: bolting || undefined,
+      },
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-3.5">
+      <label className="block">
+        <span className={FIELD_LABEL}>Name</span>
+        <input value={name} onChange={(e) => setName(e.target.value)} className={CONTROL} />
+      </label>
+      <label className="block">
+        <span className={FIELD_LABEL}>Variety <span className="text-faint font-medium normal-case tracking-normal">· optional</span></span>
+        <input value={variety} onChange={(e) => setVariety(e.target.value)} placeholder="e.g. San Marzano" className={CONTROL} />
+      </label>
+      <label className="block">
+        <span className={FIELD_LABEL}>Crop category</span>
+        <select value={cat} onChange={(e) => setCat(e.target.value as CropCategory)} className={CONTROL}>
+          {cropOptions.map((c) => <option key={c} value={c}>{CROP_LABEL[c]}</option>)}
+        </select>
+      </label>
+      <div className="grid grid-cols-2 gap-3">
+        <label className="block">
+          <span className={FIELD_LABEL}>Season</span>
+          <select value={season} onChange={(e) => setSeason(e.target.value as Season | '')} className={CONTROL}>
+            <option value="">—</option>
+            <option value="cool">Cool-season</option>
+            <option value="warm">Warm-season</option>
+            <option value="perennial">Perennial</option>
+          </select>
+        </label>
+        <label className="block">
+          <span className={FIELD_LABEL}>Water</span>
+          <select value={water} onChange={(e) => setWater(e.target.value as '' | 'low' | 'medium' | 'high')} className={CONTROL}>
+            <option value="">—</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
+      <label className="block">
+        <span className={FIELD_LABEL}>Pollination</span>
+        <select value={pollination} onChange={(e) => setPollination(e.target.value as '' | 'yes' | 'no')} className={CONTROL}>
+          <option value="">—</option>
+          <option value="yes">Required</option>
+          <option value="no">Not needed</option>
+        </select>
+      </label>
+      <label className="flex items-center gap-2.5 py-1">
+        <input type="checkbox" checked={bolting} onChange={(e) => setBolting(e.target.checked)}
+          className="h-4 w-4 rounded border-line accent-seal" />
+        <span className="text-[13px] text-ink70">Prone to bolting</span>
+      </label>
+      <label className="block">
+        <span className={FIELD_LABEL}>Note <span className="text-faint font-medium normal-case tracking-normal">· optional</span></span>
+        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. transplanted, volunteer" className={CONTROL} />
+      </label>
+      <label className="block">
+        <span className={FIELD_LABEL}>Issue <span className="text-faint font-medium normal-case tracking-normal">· optional</span></span>
+        <input value={issue} onChange={(e) => setIssue(e.target.value)} placeholder="e.g. bolted, mold" className={CONTROL} />
+      </label>
+
+      <button type="button" onClick={save} disabled={!name.trim()}
+        className="mt-1 rounded-card bg-seal px-5 py-2.5 text-sm font-semibold text-card transition-opacity hover:opacity-90 disabled:opacity-40">
+        Save planting
+      </button>
+    </div>
   );
 }
 
