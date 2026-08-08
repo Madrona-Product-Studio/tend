@@ -22,6 +22,20 @@ export async function insertZone(zone: Zone): Promise<void> {
   await db.zones.add(zone);
 }
 
+/** Bulk-insert a starter template's contents into a just-created garden. */
+export async function insertGardenContents(c: {
+  zones?: Zone[]; beds?: Bed[]; plants?: Plant[]; covers?: Cover[]; sensors?: Sensor[]; irrigation?: IrrigationNode[];
+}): Promise<void> {
+  await db.transaction('rw', [db.zones, db.beds, db.plants, db.covers, db.sensors, db.irrigation], async () => {
+    if (c.zones?.length) await db.zones.bulkAdd(c.zones);
+    if (c.beds?.length) await db.beds.bulkAdd(c.beds);
+    if (c.plants?.length) await db.plants.bulkAdd(c.plants);
+    if (c.covers?.length) await db.covers.bulkAdd(c.covers);
+    if (c.sensors?.length) await db.sensors.bulkAdd(c.sensors);
+    if (c.irrigation?.length) await db.irrigation.bulkAdd(c.irrigation);
+  });
+}
+
 /** Load everything for one garden in a single pass. */
 export async function loadGardenTree(gardenId: ID): Promise<GardenTree | null> {
   const garden = await db.gardens.get(gardenId);

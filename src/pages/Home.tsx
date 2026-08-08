@@ -4,8 +4,9 @@ import { Breath, Label, Mark } from '@design/primitives';
 import { T } from '@design/tokens';
 import { StudioContact, MarketingFooter } from '@components/MadronaContact';
 import { NewGardenDialog } from '@components/NewGardenDialog';
-import { listGardens, insertGarden } from '@/data/repo';
+import { listGardens, insertGarden, insertGardenContents } from '@/data/repo';
 import { DEMO_GARDEN_ID } from '@/data/seed';
+import type { GardenTemplateContents } from '@/data/gardenTemplates';
 import type { Garden } from '@/domain';
 
 // The product thesis, condensed from the About page. Each pillar is a single
@@ -59,8 +60,9 @@ export default function Home() {
     void listGardens().then((all) => setGardens(all.filter((g) => g.id !== DEMO_GARDEN_ID)));
   }, []);
 
-  const createGarden = async (garden: Garden) => {
+  const createGarden = async (garden: Garden, contents: GardenTemplateContents | null) => {
     await insertGarden(garden);
+    if (contents) await insertGardenContents(contents);
     navigate(`/garden/${garden.id}`);
   };
 
