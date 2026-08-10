@@ -125,7 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       model: MODEL,
       max_tokens: 16_000,
       system: SYSTEM,
-      output_config: { format: { type: 'json_schema', name: 'garden', schema: GARDEN_SCHEMA } },
+      output_config: { format: { type: 'json_schema', schema: GARDEN_SCHEMA } },
       messages: [{ role: 'user', content: transcript }],
     });
 
