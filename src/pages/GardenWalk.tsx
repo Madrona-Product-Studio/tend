@@ -3,7 +3,7 @@
 // tasks), you review it, and it becomes a real local garden. No account.
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Label, Breath, Mark } from '@design/primitives';
+import { Label, Breath, Mark, BetaChip } from '@design/primitives';
 import { T } from '@design/tokens';
 import { insertGarden, insertGardenContents } from '@/data/repo';
 import { contentsFromDraft, type WalkDraft } from '@/data/gardenFromWalk';
@@ -68,10 +68,16 @@ export default function GardenWalk() {
         </nav>
 
         <div className="mt-6">
-          <Label className="text-clay">Garden walk</Label>
+          <div className="flex items-center gap-2">
+            <Label className="text-clay">Garden walk</Label>
+            <BetaChip />
+          </div>
           <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-[-0.03em] leading-[1.05] text-ink">
             Talk through your garden. We&rsquo;ll draw the map.
           </h1>
+          <p className="mt-2 text-[12.5px] leading-[1.5] text-muted">
+            A beta feature: it captures your beds and plantings, and it may miss or misread things. You review the draft before anything is built.
+          </p>
         </div>
 
         {stage === 'review' && draft ? (
