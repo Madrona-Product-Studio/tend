@@ -22,17 +22,19 @@ export async function insertZone(zone: Zone): Promise<void> {
   await db.zones.add(zone);
 }
 
-/** Bulk-insert a starter template's contents into a just-created garden. */
+/** Bulk-insert a garden's contents into a just-created garden (starter template
+ *  or a parsed garden walk). */
 export async function insertGardenContents(c: {
-  zones?: Zone[]; beds?: Bed[]; plants?: Plant[]; covers?: Cover[]; sensors?: Sensor[]; irrigation?: IrrigationNode[];
+  zones?: Zone[]; beds?: Bed[]; plants?: Plant[]; covers?: Cover[]; sensors?: Sensor[]; irrigation?: IrrigationNode[]; tasks?: Task[];
 }): Promise<void> {
-  await db.transaction('rw', [db.zones, db.beds, db.plants, db.covers, db.sensors, db.irrigation], async () => {
+  await db.transaction('rw', [db.zones, db.beds, db.plants, db.covers, db.sensors, db.irrigation, db.tasks], async () => {
     if (c.zones?.length) await db.zones.bulkAdd(c.zones);
     if (c.beds?.length) await db.beds.bulkAdd(c.beds);
     if (c.plants?.length) await db.plants.bulkAdd(c.plants);
     if (c.covers?.length) await db.covers.bulkAdd(c.covers);
     if (c.sensors?.length) await db.sensors.bulkAdd(c.sensors);
     if (c.irrigation?.length) await db.irrigation.bulkAdd(c.irrigation);
+    if (c.tasks?.length) await db.tasks.bulkAdd(c.tasks);
   });
 }
 

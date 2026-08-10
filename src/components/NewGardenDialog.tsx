@@ -3,6 +3,7 @@
 // A template lays down real zones/beds/plantings so it's not a blank canvas;
 // "Blank garden" starts empty for people who want to lay it out themselves.
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { Garden } from '@/domain';
 import { GARDEN_TEMPLATES, type GardenTemplate, type GardenTemplateContents } from '@/data/gardenTemplates';
 import { Label } from '@design/primitives';
@@ -63,6 +64,15 @@ export function NewGardenDialog({ onClose, onCreate }: {
             ))}
           </div>
         </div>
+
+        <Link to="/garden-walk" onClick={onClose}
+          className="mt-3 flex items-baseline justify-between gap-3 rounded-card border border-line hover:border-ink70 bg-paper p-3 transition-colors">
+          <span>
+            <span className="text-[13px] font-semibold text-ink">Talk it through instead</span>
+            <span className="block mt-1 text-[11.5px] leading-[1.45] text-muted">Walk your garden, describe it out loud, and we&rsquo;ll draft the whole map for you to review.</span>
+          </span>
+          <span className="text-clay shrink-0" aria-hidden>→</span>
+        </Link>
 
         <div className="mt-5 pt-4 border-t border-line flex justify-end">
           <button type="button" onClick={create}
