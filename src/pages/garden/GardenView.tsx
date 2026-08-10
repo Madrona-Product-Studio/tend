@@ -72,9 +72,16 @@ export default function GardenView() {
                         <span className="text-[11px] text-muted shrink-0">{count(zb.length, 'bed')}</span>
                       </div>
                       {z.description && <div className="mt-0.5 text-[11px] text-muted">{z.description}</div>}
-                      <div className="mt-3 rounded-lg p-2" style={{ background: 'var(--color-bg)' }}>
-                        <ZoneDiagram items={liveItems} bounds={bounds} mini maxHeight={single ? '260px' : '130px'} />
-                      </div>
+                      {zb.length === 0 ? (
+                        <div className="mt-3 rounded-lg border border-dashed border-line p-6 text-center text-[12px] font-semibold text-muted"
+                          style={{ background: 'var(--color-bg)' }}>
+                          No beds yet · tap to add one
+                        </div>
+                      ) : (
+                        <div className="mt-3 rounded-lg p-2" style={{ background: 'var(--color-bg)' }}>
+                          <ZoneDiagram items={liveItems} bounds={bounds} mini maxHeight={single ? '260px' : '130px'} />
+                        </div>
+                      )}
                     </Link>
                   );
                 })}
