@@ -58,6 +58,16 @@ export function Label({ children, className = '' }: { children: ReactNode; class
   );
 }
 
+// A restrained "in progress" marker for beta features. Neutral by design —
+// it must not borrow the reserved seal (accent) or live (real-time) colors.
+export function BetaChip({ className = '' }: { className?: string }) {
+  return (
+    <span className={`inline-flex items-center rounded-full border border-line px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-muted ${className}`}>
+      Beta
+    </span>
+  );
+}
+
 export function VLabel({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
