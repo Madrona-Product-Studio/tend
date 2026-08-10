@@ -21,8 +21,11 @@ const SUN = ['full-sun', 'partial-shade', 'shade', 'unknown'];
 
 // Strict structured-output schema: every property is required; optionals are
 // expressed as nullable types (structured outputs disallows partial objects).
-const nullableEnum = (values: string[]) => ({ type: ['string', 'null'], enum: [...values, null] });
-const nullableString = { type: ['string', 'null'] };
+// Nullability is expressed with anyOf (not a ['string','null'] union type): the
+// structured-outputs validator requires each enum value to match a single
+// declared type, so a nullable enum must be {enum-of-strings} OR {null}.
+const nullableEnum = (values: string[]) => ({ anyOf: [{ type: 'string', enum: values }, { type: 'null' }] });
+const nullableString = { anyOf: [{ type: 'string' }, { type: 'null' }] };
 
 const GARDEN_SCHEMA = {
   type: 'object',
