@@ -81,7 +81,9 @@ function EquipCard({ item, beds, onMove, onRemove }: {
   return (
     <div className="rounded-card bg-card border border-line p-4 flex items-center justify-between gap-4 flex-wrap">
       <div className="min-w-0 flex items-center gap-3">
-        <span className={`w-2 h-2 rounded-full shrink-0 ${assigned ? 'bg-live' : 'bg-faint'}`} />
+        {/* Neutral assignment indicator — teal (`live`) is reserved for real-time
+            readings, not "is this assigned to a bed". */}
+        <span className={`w-2 h-2 rounded-full shrink-0 ${assigned ? 'bg-clay' : 'bg-faint'}`} />
         <div className="min-w-0">
           <div className="text-[15px] font-semibold text-ink">{item.title}</div>
           {item.detail && <div className="text-[12px] text-muted mt-0.5">{item.detail}</div>}

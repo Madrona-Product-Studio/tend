@@ -9,9 +9,8 @@ import { TasksSection } from '@components/TasksSection';
 import { NewBedDialog } from './NewBedDialog';
 import { NewZoneDialog } from './NewZoneDialog';
 import { WelcomeIntro } from '@components/WelcomeIntro';
-import { bedsInZone, zoneLayout, bedLive, dominantCrop, SUN_LABEL, type GardenTree, type Zone } from '@/domain';
+import { bedsInZone, zoneLayout, bedLive, SUN_LABEL, type GardenTree, type Zone } from '@/domain';
 import { Label, Breath, Hairline, Marker } from '@design/primitives';
-import { CROP_DOT } from '@design/cropColors';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -30,6 +29,7 @@ export default function GardenView() {
 
   const isDemo = gardenId === 'demo';
   const empty = tree.zones.length === 0;
+  const single = tree.zones.length === 1;
 
   return (
     <>
@@ -52,35 +52,38 @@ export default function GardenView() {
         ) : (
         <div className="mt-4">
           {lens === 'map' ? (
-            <div className="grid sm:grid-cols-2 gap-4">
-              {tree.zones.map((z) => {
-                const zb = bedsInZone(tree, z.id);
-                const { items, bounds } = zoneLayout(zb);
-                const liveItems = items.map((it) => {
-                  const l = bedLive(tree, it.id);
-                  const crop = dominantCrop(tree, it.id);
-                  return {
-                    ...it,
-                    live: !!(l.reading || l.irrigationOn === true || typeof l.reservoirLevel === 'number'),
-                    tint: crop ? CROP_DOT[crop] : undefined,
-                  };
-                });
-                return (
-                  <Link key={z.id} to={`/garden/${gardenId}/zone/${z.id}`}
-                    className="tactile block rounded-card bg-card border border-line p-4 hover:border-ink70">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <h3 className="text-[15px] font-semibold text-ink">{z.name}</h3>
-                      <span className="text-[11px] text-muted shrink-0">{zb.length} beds</span>
-                    </div>
-                    {z.description && <div className="mt-0.5 text-[11px] text-muted">{z.description}</div>}
-                    <div className="mt-3 rounded-lg p-2" style={{ background: 'var(--color-bg)' }}>
-                      <ZoneDiagram items={liveItems} bounds={bounds} mini maxHeight="130px" />
-                    </div>
-                  </Link>
-                );
-              })}
-              <AddZoneCard onClick={() => setNewZone(true)} />
-            </div>
+            <>
+              <div className={`grid gap-4 ${single ? '' : 'sm:grid-cols-2'}`}>
+                {tree.zones.map((z) => {
+                  const zb = bedsInZone(tree, z.id);
+                  const { items, bounds } = zoneLayout(zb);
+                  const liveItems = items.map((it) => {
+                    const l = bedLive(tree, it.id);
+                    return {
+                      ...it,
+                      live: !!(l.reading || l.irrigationOn === true || typeof l.reservoirLevel === 'number'),
+                    };
+                  });
+                  return (
+                    <Link key={z.id} to={`/garden/${gardenId}/zone/${z.id}`}
+                      className="tactile block rounded-card bg-card border border-line p-4 hover:border-ink70">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <h3 className="text-[15px] font-semibold text-ink">{z.name}</h3>
+                        <span className="text-[11px] text-muted shrink-0">{count(zb.length, 'bed')}</span>
+                      </div>
+                      {z.description && <div className="mt-0.5 text-[11px] text-muted">{z.description}</div>}
+                      <div className="mt-3 rounded-lg p-2" style={{ background: 'var(--color-bg)' }}>
+                        <ZoneDiagram items={liveItems} bounds={bounds} mini maxHeight={single ? '260px' : '130px'} />
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              <button type="button" onClick={() => setNewZone(true)}
+                className="tactile mt-4 w-full rounded-card border border-dashed border-line p-3.5 text-left text-[13px] font-semibold text-muted hover:border-ink70 hover:text-ink70">
+                + Add a zone
+              </button>
+            </>
           ) : (
             <>
               {tree.zones.map((z, i) => (
@@ -118,16 +121,6 @@ export default function GardenView() {
           onCreate={(zone) => { void addZone(zone); setNewZone(false); }} />
       )}
     </>
-  );
-}
-
-// A dashed "add" tile that matches AddBedCard, sized to sit in the zone grid.
-function AddZoneCard({ onClick }: { onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick}
-      className="tactile rounded-card border border-dashed border-line p-4 text-left text-[14px] font-semibold text-muted hover:border-ink70 hover:text-ink70 min-h-[180px] flex items-center justify-center">
-      + Add a zone
-    </button>
   );
 }
 

@@ -14,6 +14,7 @@ import { T } from '@design/tokens';
 import { NotesSection } from '@components/NotesSection';
 import { TasksSection } from '@components/TasksSection';
 import { LiveStrip } from '@components/LiveStrip';
+import { PlantAutocomplete } from '@components/PlantAutocomplete';
 import { EditableBedShape } from './EditableBedShape';
 
 export default function BedView() {
@@ -350,7 +351,9 @@ function PlantEditForm({ planting, onSave }: { planting: Plant; onSave: (patch: 
     <div className="flex flex-col gap-3.5">
       <label className="block">
         <span className={FIELD_LABEL}>Name</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} className={CONTROL} />
+        <PlantAutocomplete value={name} onChange={setName}
+          onPick={(nm, c) => { setName(nm); setCat(c); }}
+          inputClassName={CONTROL} />
       </label>
       <label className="block">
         <span className={FIELD_LABEL}>Variety <span className="text-faint font-medium normal-case tracking-normal">· optional</span></span>

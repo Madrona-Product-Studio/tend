@@ -1,14 +1,15 @@
 // "Add equipment" — create a cover or a sensor for the garden's movable
-// inventory. A freshly built garden starts with none; this is how the systems
-// story gets off the ground. Optionally assign it to a bed and (for sensors)
-// log a first reading so the map shows live state right away.
+// inventory. Leads with a picker of common gear ("here are ideas to add"), not
+// a blank field; the label stays editable. Optionally assign it to a bed and
+// (for sensors) log a first reading so the map shows live state right away.
 import { useState } from 'react';
 import type { Bed, Cover, CoverKind, Sensor } from '@/domain';
+import { COVER_PRESETS, SENSOR_PRESETS } from '@/data/equipmentCatalog';
 import { Label } from '@design/primitives';
 
-const COVER_KINDS: { kind: CoverKind; label: string }[] = [
-  { kind: 'heat', label: 'Heat cover' },
-  { kind: 'mesh-shade', label: 'Mesh / shade cover' },
+const COVER_GROUPS: { kind: CoverKind; heading: string }[] = [
+  { kind: 'heat', heading: 'Warmth' },
+  { kind: 'mesh-shade', heading: 'Shade / mesh' },
 ];
 
 export function NewEquipmentDialog({ kind, gardenId, beds, onClose, onCreateCover, onCreateSensor }: {
@@ -19,21 +20,24 @@ export function NewEquipmentDialog({ kind, gardenId, beds, onClose, onCreateCove
   onCreateCover: (c: Cover) => void;
   onCreateSensor: (s: Sensor) => void;
 }) {
-  const [coverKind, setCoverKind] = useState<CoverKind>('heat');
-  const [label, setLabel] = useState('');
+  const presets: { id: string; label: string }[] = kind === 'cover' ? COVER_PRESETS : SENSOR_PRESETS;
+  const [presetId, setPresetId] = useState<string>(presets[0]!.id);
+  const [label, setLabel] = useState<string>(presets[0]!.label);
   const [bedId, setBedId] = useState('');
   const [temp, setTemp] = useState('');
   const [humidity, setHumidity] = useState('');
 
-  const defaultLabel = kind === 'cover'
-    ? (coverKind === 'heat' ? 'Heat cover' : 'Mesh / shade cover')
-    : 'Govee temp / humidity';
+  const choose = (id: string) => {
+    setPresetId(id);
+    setLabel(presets.find((p) => p.id === id)!.label);
+  };
 
   const create = () => {
-    const finalLabel = label.trim() || defaultLabel;
+    const finalLabel = label.trim() || presets.find((p) => p.id === presetId)!.label;
     const assignedBedId = bedId || undefined;
     if (kind === 'cover') {
-      onCreateCover({ id: crypto.randomUUID(), gardenId, kind: coverKind, label: finalLabel, assignedBedId });
+      const cp = COVER_PRESETS.find((p) => p.id === presetId)!;
+      onCreateCover({ id: crypto.randomUUID(), gardenId, kind: cp.kind, label: finalLabel, assignedBedId });
       return;
     }
     const t = temp.trim() === '' ? undefined : Number(temp);
@@ -48,7 +52,14 @@ export function NewEquipmentDialog({ kind, gardenId, beds, onClose, onCreateCove
   };
 
   const title = kind === 'cover' ? 'Add a cover' : 'Add a sensor';
-  const sub = kind === 'cover' ? 'A movable cover' : 'A temp / humidity reader';
+  const sub = kind === 'cover' ? 'Pick a cover, or name your own' : 'Pick a sensor, or name your own';
+
+  const PresetCard = ({ id, label: pLabel }: { id: string; label: string }) => (
+    <button type="button" onClick={() => choose(id)} aria-pressed={presetId === id}
+      className={`text-left rounded-card border px-3 py-2 text-[13px] font-semibold transition-colors ${presetId === id ? 'border-ink bg-paper text-ink' : 'border-line text-ink70 hover:border-ink70'}`}>
+      {pLabel}
+    </button>
+  );
 
   return (
     <>
@@ -65,25 +76,29 @@ export function NewEquipmentDialog({ kind, gardenId, beds, onClose, onCreateCove
         </div>
 
         <div className="mt-5 flex flex-col gap-4">
-          {kind === 'cover' && (
+          {kind === 'cover' ? (
+            COVER_GROUPS.map((g) => (
+              <div key={g.kind}>
+                <div className="mb-1.5"><span className="text-[9px] font-bold uppercase tracking-[0.16em] text-faint">{g.heading}</span></div>
+                <div className="grid grid-cols-2 gap-2">
+                  {COVER_PRESETS.filter((p) => p.kind === g.kind).map((p) => <PresetCard key={p.id} id={p.id} label={p.label} />)}
+                </div>
+              </div>
+            ))
+          ) : (
             <div>
-              <span className="text-[9.5px] font-bold uppercase tracking-[0.16em] text-muted">Type</span>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {COVER_KINDS.map((c) => (
-                  <button key={c.kind} type="button" onClick={() => setCoverKind(c.kind)} aria-pressed={coverKind === c.kind}
-                    className={`text-left rounded-card border px-3 py-2 text-[13px] font-semibold transition-colors ${coverKind === c.kind ? 'border-ink bg-paper text-ink' : 'border-line text-ink70 hover:border-ink70'}`}>
-                    {c.label}
-                  </button>
-                ))}
+              <div className="mb-1.5"><span className="text-[9px] font-bold uppercase tracking-[0.16em] text-faint">Common sensors</span></div>
+              <div className="grid grid-cols-2 gap-2">
+                {SENSOR_PRESETS.map((p) => <PresetCard key={p.id} id={p.id} label={p.label} />)}
               </div>
             </div>
           )}
 
           <label className="block">
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.16em] text-muted">Label <span className="text-faint font-medium normal-case tracking-normal">· optional</span></span>
-            <input autoFocus value={label} onChange={(e) => setLabel(e.target.value)}
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.16em] text-muted">Label</span>
+            <input value={label} onChange={(e) => setLabel(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') create(); }}
-              placeholder={defaultLabel}
+              placeholder={presets[0]!.label}
               className="mt-1 w-full rounded-card border border-line focus:border-ink px-3 py-2 text-[14px] text-ink outline-none" />
           </label>
 

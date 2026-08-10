@@ -37,12 +37,9 @@ function raisedBeds(gardenId: string): GardenTemplateContents {
     plant(salad, 'Lettuce', 'leafy'), plant(salad, 'Arugula', 'leafy'), plant(salad, 'Spinach', 'leafy'),
     plant(root, 'Carrots', 'root'), plant(root, 'Beets', 'root'), plant(root, 'Radishes', 'root'),
   ];
-  return {
-    zones: [zone], beds, plants,
-    covers: [],
-    sensors: [{ id: uid(), gardenId, label: 'Temp / humidity', measures: 'temp-humidity', assignedBedId: tomato, reading: { tempF: 78, humidityPct: 52, updatedAt: Date.now() } }],
-    irrigation: [{ id: uid(), gardenId, bedId: salad, on: true, kind: 'emitters', emitterCount: 4 }],
-  };
+  // Structure only — beds and plantings you can rename. No sensors/covers: those
+  // are hardware you own, added yourself on the Equipment screen.
+  return { zones: [zone], beds, plants, covers: [], sensors: [], irrigation: [] };
 }
 
 function wickingGreenhouse(gardenId: string): GardenTemplateContents {
@@ -50,8 +47,8 @@ function wickingGreenhouse(gardenId: string): GardenTemplateContents {
   const zone: Zone = { id: z, gardenId, name: 'Production', description: 'Wicking beds + greenhouse', sunExposure: 'full-sun' };
   const wick = uid(), pepper = uid(), gh = uid();
   const beds: Bed[] = [
-    { id: wick, zoneId: z, name: 'Wicking Bed', type: 'vigo-wicking', typeDetail: 'Vigo — wicking floor + reservoir', state: { reservoirLevel: 0.9 }, layout: { kind: 'rows', rows: 2 }, footprint: { x: 8, y: 8, w: 60, h: 46 } },
-    { id: pepper, zoneId: z, name: 'Pepper Bed', type: 'vigo-wicking', typeDetail: 'Vigo — wicking floor', state: { reservoirLevel: 0.7 }, footprint: { x: 76, y: 8, w: 56, h: 46 } },
+    { id: wick, zoneId: z, name: 'Wicking Bed', type: 'vigo-wicking', typeDetail: 'Vigo — wicking floor + reservoir', layout: { kind: 'rows', rows: 2 }, footprint: { x: 8, y: 8, w: 60, h: 46 } },
+    { id: pepper, zoneId: z, name: 'Pepper Bed', type: 'vigo-wicking', typeDetail: 'Vigo — wicking floor', footprint: { x: 76, y: 8, w: 56, h: 46 } },
     { id: gh, zoneId: z, name: 'Greenhouse', type: 'greenhouse', typeDetail: 'Greenhouse structure — 8×6', widthFt: 8, lengthFt: 6, footprint: { x: 8, y: 62, w: 124, h: 60 } },
   ];
   const plants: Plant[] = [
@@ -59,12 +56,9 @@ function wickingGreenhouse(gardenId: string): GardenTemplateContents {
     plant(pepper, 'Jalapeño', 'fruiting'), plant(pepper, 'Bell pepper', 'fruiting'), plant(pepper, 'Shishito', 'fruiting'),
     plant(gh, 'Cucumber', 'fruiting', { variety: 'Suyo' }), plant(gh, 'Tomato', 'fruiting', { variety: 'Tiny Tim' }),
   ];
-  return {
-    zones: [zone], beds, plants,
-    covers: [{ id: uid(), gardenId, kind: 'heat', label: 'Greenhouse cover', assignedBedId: gh }],
-    sensors: [{ id: uid(), gardenId, label: 'Greenhouse temp / humidity', measures: 'temp-humidity', assignedBedId: gh, reading: { tempF: 84, humidityPct: 63, updatedAt: Date.now() } }],
-    irrigation: [{ id: uid(), gardenId, bedId: pepper, on: false, kind: 'emitters', emitterCount: 3 }],
-  };
+  // Structure only — the greenhouse and wicking beds are the bed types you chose;
+  // sensors and covers are hardware you add yourself on the Equipment screen.
+  return { zones: [zone], beds, plants, covers: [], sensors: [], irrigation: [] };
 }
 
 function patioHerbs(gardenId: string): GardenTemplateContents {
@@ -83,8 +77,8 @@ function patioHerbs(gardenId: string): GardenTemplateContents {
 }
 
 export const GARDEN_TEMPLATES: GardenTemplate[] = [
-  { id: 'raised', label: 'Raised beds', blurb: 'Three raised beds in full sun, a sensor, and a drip line. A common home setup.', summary: '1 zone · 3 beds · 9 plants', build: raisedBeds },
-  { id: 'wicking', label: 'Wicking + greenhouse', blurb: 'Self-watering wicking beds with live reservoirs, plus an 8×6 greenhouse.', summary: '1 zone · 3 beds · live state', build: wickingGreenhouse },
+  { id: 'raised', label: 'Raised beds', blurb: 'Three raised beds in full sun, planted with tomatoes, salad, and roots. A common home setup.', summary: '1 zone · 3 beds · 9 plants', build: raisedBeds },
+  { id: 'wicking', label: 'Wicking + greenhouse', blurb: 'Two self-watering wicking beds and an 8×6 greenhouse. Rename and rearrange to match yours.', summary: '1 zone · 3 beds · 8 plants', build: wickingGreenhouse },
   { id: 'patio', label: 'Patio & herbs', blurb: 'A container herb collection and a lettuce bed for a shady patio.', summary: '1 zone · 2 beds · 6 plants', build: patioHerbs },
   { id: 'blank', label: 'Blank garden', blurb: 'Start from nothing and lay it out yourself, zone by zone.', summary: 'Empty' },
 ];
