@@ -103,7 +103,7 @@ export default function Home() {
           </picture>
 
           <div className="home-hero__content">
-            <Mark id="leaf" size={56} color={T.seal} sw={2.2} />
+            <Mark id="sprout" size={56} color={T.seal} sw={2.2} />
             <h1 className="mt-6 text-5xl sm:text-7xl font-bold tracking-[-0.035em] text-ink leading-none">
               GardenHQ
             </h1>

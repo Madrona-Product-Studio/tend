@@ -43,7 +43,7 @@ export default function About() {
 
       <main className="min-h-screen max-w-2xl mx-auto px-6 py-14 sm:px-10 sm:py-20">
         <Link to="/" aria-label="GardenHQ home" className="inline-block">
-          <Mark id="leaf" size={40} color={T.seal} sw={2.4} />
+          <Mark id="sprout" size={40} color={T.seal} sw={2.4} />
         </Link>
 
         <div className="mt-10">

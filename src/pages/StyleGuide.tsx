@@ -15,7 +15,7 @@ const COLORS: { name: string; token: string; value: string; ring?: boolean }[] =
   { name: 'live', token: 'bg-live', value: T.live },
 ];
 
-const MARKS: MarkId[] = ['leaf', 'enso', 'ring', 'dot', 'ripple', 'stroke', 'arc', 'crescent', 'mountain', 'lotus'];
+const MARKS: MarkId[] = ['sprout', 'leaf', 'enso', 'ring', 'dot', 'ripple', 'stroke', 'arc', 'crescent', 'mountain', 'lotus'];
 
 function Section({ index, title, breath, children }: {
   index: string; title: string; breath?: string; children: React.ReactNode;
@@ -41,7 +41,7 @@ export default function StyleGuide() {
         <header className="mb-14">
           <Link to="/" className="text-sm text-muted hover:text-ink70 transition-colors">← GardenHQ</Link>
           <div className="mt-6 flex items-center gap-4">
-            <Mark id="leaf" size={40} color={T.seal} />
+            <Mark id="sprout" size={40} color={T.seal} />
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-ink leading-none">swiss / zen</h1>
               <p className="mt-1.5 text-sm text-muted">GardenHQ's living component library — consume it, grow it, promote wins back.</p>
@@ -74,7 +74,7 @@ export default function StyleGuide() {
           </div>
         </Section>
 
-        <Section index="03" title="Marks" breath="Calm abstract glyphs. Leaf is GardenHQ's recurring marker; the family carries section signatures and live-state accents.">
+        <Section index="03" title="Marks" breath="Calm abstract glyphs. Sprout is GardenHQ's recurring marker; the family carries section signatures and live-state accents.">
           <div className="flex flex-wrap gap-6">
             {MARKS.map((m) => (
               <div key={m} className="flex flex-col items-center gap-2">

@@ -11,13 +11,14 @@ import type { ReactElement, ReactNode } from 'react';
 import { T } from './tokens';
 
 // ── Mark ────────────────────────────────────────────────────────────────────
-// Calm, abstract glyphs. `leaf` is Tend's recurring marker (garden-appropriate);
-// the full family is available for section signatures and live-state accents.
+// Calm, abstract glyphs. `sprout` is GardenHQ's brand marker (a seed's first
+// shoot — the moment a garden begins); the full family is available for section
+// signatures and live-state accents.
 export type MarkId =
-  | 'leaf' | 'enso' | 'ring' | 'dot' | 'ripple'
+  | 'sprout' | 'leaf' | 'enso' | 'ring' | 'dot' | 'ripple'
   | 'stroke' | 'arc' | 'crescent' | 'mountain' | 'lotus';
 
-export const MARK: MarkId = 'leaf';
+export const MARK: MarkId = 'sprout';
 
 export function Mark({ id = MARK, size = 32, color = T.ink, sw = 2.4 }: {
   id?: MarkId; size?: number; color?: string; sw?: number;
@@ -25,6 +26,10 @@ export function Mark({ id = MARK, size = 32, color = T.ink, sw = 2.4 }: {
   const cm = { fill: 'none', stroke: color, strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
   const r = 40, c = 2 * Math.PI * r;
   const marks: Record<MarkId, ReactElement> = {
+    // Brand marker: a shoot with two cotyledon leaves rising from the soil.
+    // Single-tone (the back leaf just drops opacity for depth) so it reverses
+    // cleanly to cream on ink or seal grounds.
+    sprout:   <><path d="M50 84 C50 68 50 56 50 42" fill="none" stroke={color} strokeWidth={sw * 2.8} strokeLinecap="round" strokeLinejoin="round" /><path d="M50 54 C39 54 30 47 28 35 C42 33 52 41 50 54 Z" fill={color} fillOpacity={0.5} /><path d="M50 46 C61 46 70 39 72 27 C58 25 48 33 50 46 Z" fill={color} /></>,
     leaf:     <><path d="M50 14 C30 36 30 64 50 86 C70 64 70 36 50 14 Z" {...cm} /><path d="M50 20 L50 80" {...cm} strokeWidth={sw * 0.8} /></>,
     enso:     <circle cx="50" cy="50" r={r} {...cm} strokeWidth={3} strokeDasharray={`${c * 0.85} ${c * 0.15}`} transform="rotate(-105 50 50)" />,
     ring:     <circle cx="50" cy="50" r={r} {...cm} />,

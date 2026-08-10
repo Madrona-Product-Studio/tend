@@ -69,7 +69,7 @@ export function LevelHeader({ crumbs, code, title, meta, lens, onLens, actions, 
   return (
     <header>
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm flex-wrap">
-        <Link to="/" aria-label="Home" className="inline-flex items-center shrink-0"><Mark id="leaf" size={16} color={T.seal} sw={3} /></Link>
+        <Link to="/" aria-label="Home" className="inline-flex items-center shrink-0"><Mark id="sprout" size={16} color={T.seal} sw={3} /></Link>
         {crumbs.map((c) => (
           <span key={c.to} className="flex items-center gap-2">
             <span className="text-faint">›</span>
