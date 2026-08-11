@@ -14,6 +14,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import type { BedLayout, CropCategory, Plant } from '@/domain';
 import { CROP_DOT } from '@design/cropColors';
+import { PlantAutocomplete } from '@components/PlantAutocomplete';
 
 interface Props {
   bedId: string;
@@ -98,10 +99,14 @@ export function EditableBedShape({ bedId, layout, initialRows, onArrange, onAddP
     return best;
   })();
 
-  const addPlant = (ri: number, name: string) => {
+  const allNames = rows.flat().map((p) => p.name);
+
+  // A picked suggestion carries its own crop category; free text falls back to
+  // the bed's dominant category so a same-crop bed stays consistent.
+  const addPlant = (ri: number, name: string, category?: CropCategory) => {
     const clean = name.trim();
     if (!clean) return;
-    const plant: Plant = { id: crypto.randomUUID(), bedId, name: clean, attributes: { cropCategory: defaultCat }, row: ri, order: rows[ri]!.length };
+    const plant: Plant = { id: crypto.randomUUID(), bedId, name: clean, attributes: { cropCategory: category ?? defaultCat }, row: ri, order: rows[ri]!.length };
     setRows((prev) => prev.map((r, i) => (i === ri ? [...r, plant] : r)));
     onAddPlant(plant);
     setAddingRow(null);
@@ -132,7 +137,7 @@ export function EditableBedShape({ bedId, layout, initialRows, onArrange, onAddP
                 key={i} index={i} plants={row} vertical={sideBySide} last={i === rows.length - 1}
                 onRemovePlant={removePlant} onRemoveRow={() => removeRow(i)}
                 adding={addingRow === i} onStartAdd={() => setAddingRow(i)} onCancelAdd={() => setAddingRow(null)}
-                onAdd={(name) => addPlant(i, name)}
+                onAdd={(name, cat) => addPlant(i, name, cat)} existing={allNames}
               />
             ))}
           </div>
@@ -150,10 +155,11 @@ export function EditableBedShape({ bedId, layout, initialRows, onArrange, onAddP
   );
 }
 
-function EditRow({ index, plants, vertical, last, onRemovePlant, onRemoveRow, adding, onStartAdd, onCancelAdd, onAdd }: {
+function EditRow({ index, plants, vertical, last, onRemovePlant, onRemoveRow, adding, onStartAdd, onCancelAdd, onAdd, existing }: {
   index: number; plants: Plant[]; vertical: boolean; last: boolean;
   onRemovePlant: (id: string) => void; onRemoveRow: () => void;
-  adding: boolean; onStartAdd: () => void; onCancelAdd: () => void; onAdd: (name: string) => void;
+  adding: boolean; onStartAdd: () => void; onCancelAdd: () => void;
+  onAdd: (name: string, category?: CropCategory) => void; existing: string[];
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: rowId(index) });
   const frame = vertical
@@ -172,7 +178,7 @@ function EditRow({ index, plants, vertical, last, onRemovePlant, onRemoveRow, ad
           className={`flex flex-wrap gap-2 ${vertical ? 'flex-col items-start' : 'flex-1 min-w-0'} ${isOver ? 'rounded-lg outline-2 outline-dashed outline-seal/40 outline-offset-4' : ''}`}>
           {plants.map((p) => <SortableNode key={p.id} plant={p} onRemove={() => onRemovePlant(p.id)} />)}
           {adding
-            ? <AddInput onAdd={onAdd} onCancel={onCancelAdd} />
+            ? <AddInput onAdd={onAdd} onCancel={onCancelAdd} existing={existing} />
             : <button type="button" onClick={onStartAdd} className="inline-flex items-center rounded-3xl border border-dashed border-line px-3 py-1.5 text-[12px] font-semibold text-muted hover:border-ink70 hover:text-ink70 transition-colors">+ Add</button>}
         </div>
       </SortableContext>
@@ -206,15 +212,19 @@ function NodeChip({ plant, handleProps, onRemove, dragging }: {
   );
 }
 
-function AddInput({ onAdd, onCancel }: { onAdd: (name: string) => void; onCancel: () => void }) {
+function AddInput({ onAdd, onCancel, existing }: { onAdd: (name: string, category?: CropCategory) => void; onCancel: () => void; existing: string[] }) {
   const [v, setV] = useState('');
   return (
-    <input
-      autoFocus value={v} onChange={(e) => setV(e.target.value)}
-      onKeyDown={(e) => { if (e.key === 'Enter') onAdd(v); if (e.key === 'Escape') onCancel(); }}
+    <PlantAutocomplete
+      value={v} onChange={setV} existing={existing}
+      onPick={(name, cat) => onAdd(name, cat)}
+      onEnter={() => (v.trim() ? onAdd(v) : onCancel())}
+      onEscape={onCancel}
       onBlur={() => (v.trim() ? onAdd(v) : onCancel())}
+      autoFocus
       placeholder="Plant name…"
-      className="rounded-3xl border border-ink bg-card px-3 py-1.5 text-[13px] text-ink w-36 outline-none"
+      wrapperClassName="inline-block"
+      inputClassName="rounded-3xl border border-ink bg-card px-3 py-1.5 text-[13px] text-ink w-40 outline-none"
     />
   );
 }

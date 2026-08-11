@@ -143,13 +143,25 @@ export function seedIfEmpty(): Promise<void> {
     [db.gardens, db.zones, db.beds, db.plants, db.covers, db.sensors, db.irrigation, db.tasks, db.observations, db.meta],
     async () => {
       const stored = (await db.meta.get('seedVersion'))?.value ?? 0;
-      const hasGarden = (await db.gardens.count()) > 0;
-      if (hasGarden && stored === SEED_VERSION) return;
+      const hasDemo = !!(await db.gardens.get(DEMO_GARDEN_ID));
+      if (hasDemo && stored === SEED_VERSION) return;
 
+      // Reseed ONLY the demo garden — never the gardens a user has built. Scope
+      // deletes to demo-owned rows so a version bump can't nuke real user data.
+      const demoZoneIds = (await db.zones.where('gardenId').equals(DEMO_GARDEN_ID).toArray()).map((z) => z.id);
+      const demoBedIds = (await db.beds.where('zoneId').anyOf(demoZoneIds).toArray()).map((b) => b.id);
       await Promise.all([
-        db.gardens.clear(), db.zones.clear(), db.beds.clear(), db.plants.clear(),
-        db.covers.clear(), db.sensors.clear(), db.irrigation.clear(), db.tasks.clear(), db.observations.clear(),
+        db.gardens.delete(DEMO_GARDEN_ID),
+        db.zones.where('gardenId').equals(DEMO_GARDEN_ID).delete(),
+        db.beds.where('zoneId').anyOf(demoZoneIds).delete(),
+        db.plants.where('bedId').anyOf(demoBedIds).delete(),
+        db.covers.where('gardenId').equals(DEMO_GARDEN_ID).delete(),
+        db.sensors.where('gardenId').equals(DEMO_GARDEN_ID).delete(),
+        db.irrigation.where('gardenId').equals(DEMO_GARDEN_ID).delete(),
+        db.tasks.where('gardenId').equals(DEMO_GARDEN_ID).delete(),
+        db.observations.where('gardenId').equals(DEMO_GARDEN_ID).delete(),
       ]);
+
       await db.gardens.add(garden);
       await db.zones.bulkAdd(zones);
       await db.beds.bulkAdd(beds);

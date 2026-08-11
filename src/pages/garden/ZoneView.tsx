@@ -13,11 +13,12 @@ import { Breath } from '@design/primitives';
 
 export default function ZoneView() {
   const { gardenId = 'demo', zoneId = '' } = useParams<{ gardenId: string; zoneId: string }>();
-  const { tree, status, addBed, setBedGeometry, renameZone, toggleTask, addTask, removeTask } = useGarden(gardenId);
+  const { tree, status, addBed, setBedGeometry, renameZone, toggleTask, addTask, removeTask, setIrrigationOn } = useGarden(gardenId);
   const [lens, setLens] = useLens('map');
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [irrig, setIrrig] = useState(false);
 
   const zone = tree?.zones.find((z) => z.id === zoneId);
   const beds = useMemo(() => (tree && zone ? bedsInZone(tree, zone.id) : []), [tree, zone]);
@@ -38,6 +39,20 @@ export default function ZoneView() {
   const zoneBedIds = new Set(beds.map((b) => b.id));
   const tasks = tree.tasks.filter((t) => t.zoneId === zone.id || (t.bedId && zoneBedIds.has(t.bedId)));
 
+  // Irrigation overlay: which beds in this zone are on the drip network, their
+  // on/off state, a spatial order for the schematic line, and a toggle.
+  const irrigByBed = new Map<string, { on: boolean; kind?: string; nodeId: string }>();
+  for (const n of tree.irrigation) {
+    if (n.bedId && zoneBedIds.has(n.bedId)) irrigByBed.set(n.bedId, { on: n.on, kind: n.kind, nodeId: n.id });
+  }
+  const hasIrrig = irrigByBed.size > 0;
+  const irrigNodes = Object.fromEntries([...irrigByBed].map(([bid, v]) => [bid, { on: v.on, kind: v.kind }]));
+  const irrigPath = items.filter((it) => irrigByBed.has(it.id)).slice()
+    .sort((a, b) => a.rect.x - b.rect.x || a.rect.y - b.rect.y).map((it) => it.id);
+  const onCount = [...irrigByBed.values()].filter((v) => v.on).length;
+  const toggleWater = (bedId: string) => { const v = irrigByBed.get(bedId); if (v) void setIrrigationOn(v.nodeId, !v.on); };
+  const noBeds = beds.length === 0;
+
   return (
     <>
       <title>{`${zone.name} · GardenHQ`}</title>
@@ -48,12 +63,21 @@ export default function ZoneView() {
           title={zone.name}
           onRename={(name) => renameZone(zone.id, name)}
           meta={[zone.sunExposure ? SUN_LABEL[zone.sunExposure] : null, zone.description].filter(Boolean).join(' · ')}
-          lens={lens} onLens={setLens}
-          actions={lens === 'map' ? (
-            <button type="button" onClick={() => setEditing((v) => !v)}
-              className={`rounded-card px-3 py-2 text-[12px] font-semibold transition-colors ${editing ? 'bg-ink text-card' : 'border border-line text-ink70 hover:border-ink70'}`}>
-              {editing ? 'Done' : 'Edit layout'}
-            </button>
+          lens={noBeds ? undefined : lens} onLens={noBeds ? undefined : setLens}
+          actions={noBeds ? undefined : lens === 'map' ? (
+            editing ? (
+              <button type="button" onClick={() => setEditing(false)}
+                className="rounded-card bg-ink text-card px-3 py-2 text-[12px] font-semibold">Done</button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setIrrig((v) => !v)} aria-pressed={irrig}
+                  className={`rounded-card px-3 py-2 text-[12px] font-semibold transition-colors ${irrig ? 'bg-live text-card' : 'border border-line text-ink70 hover:border-ink70'}`}>
+                  Irrigation
+                </button>
+                <button type="button" onClick={() => { setEditing(true); setIrrig(false); }}
+                  className="rounded-card border border-line px-3 py-2 text-[12px] font-semibold text-ink70 hover:border-ink70 transition-colors">Edit layout</button>
+              </div>
+            )
           ) : (
             <button type="button" onClick={() => setAdding(true)} className="rounded-card border border-line px-3 py-2 text-[12px] font-semibold text-ink70 hover:border-ink70 transition-colors">+ Build a bed</button>
           )}
@@ -62,14 +86,35 @@ export default function ZoneView() {
         {zone.about && <Breath className="mt-5 max-w-xl text-[16px]">{zone.about}</Breath>}
 
         <div className="mt-6">
-          {lens === 'map' ? (
+          {noBeds ? (
+            <EmptyZone onAddBed={() => setAdding(true)} />
+          ) : lens === 'map' ? (
             editing ? (
               <ZoneLayoutEditor beds={beds} onSave={(id, footprint, shape) => setBedGeometry(id, footprint, shape)} onAddBed={() => setAdding(true)} />
             ) : (
-              <div className="rounded-xl border border-line p-3 sm:p-4" style={{ background: 'var(--color-bg)' }}>
-                <ZoneDiagram items={liveItems} bounds={bounds} onSelect={(bid) => navigate(`/garden/${gardenId}/bed/${bid}`)} />
-                <p className="mt-2 text-center text-[12px] text-muted">Tap a bed to open it · Edit layout to arrange</p>
-              </div>
+              <>
+                <div className="rounded-xl border border-line p-3 sm:p-4" style={{ background: 'var(--color-bg)' }}>
+                  <ZoneDiagram
+                    items={liveItems} bounds={bounds}
+                    onSelect={(bid) => navigate(`/garden/${gardenId}/bed/${bid}`)}
+                    overlay={irrig && hasIrrig ? 'irrigation' : undefined}
+                    nodes={irrig && hasIrrig ? irrigNodes : undefined}
+                    path={irrig && hasIrrig ? irrigPath : undefined}
+                    onToggleNode={toggleWater}
+                  />
+                  <p className="mt-2 text-center text-[12px] text-muted">
+                    {irrig
+                      ? (hasIrrig
+                          ? `${onCount} of ${irrigByBed.size} watering now · tap a bed to toggle its water`
+                          : 'No beds on the drip network yet — open a bed and add a drip line')
+                      : 'Tap a bed to open it · Edit layout to arrange'}
+                  </p>
+                </div>
+                <button type="button" onClick={() => setAdding(true)}
+                  className="tactile mt-4 w-full rounded-card border border-dashed border-line p-3.5 text-left text-[13px] font-semibold text-muted hover:border-ink70 hover:text-ink70">
+                  + Build a bed
+                </button>
+              </>
             )
           ) : (
             <>
@@ -89,8 +134,34 @@ export default function ZoneView() {
       {adding && (
         <NewBedDialog zoneId={zone.id} zoneName={zone.name}
           onClose={() => setAdding(false)}
-          onCreate={(bed) => { void addBed(bed); setAdding(false); }} />
+          onCreate={(bed) => { void addBed(bed); setAdding(false); navigate(`/garden/${gardenId}/bed/${bed.id}`); }} />
       )}
     </>
+  );
+}
+
+// First-run canvas for a zone with no beds yet — the next rung after adding a
+// zone. Mirrors the garden-level empty state so the build ladder stays clear.
+function EmptyZone({ onAddBed }: { onAddBed: () => void }) {
+  return (
+    <div className="rounded-card border border-dashed border-line bg-paper p-8 sm:p-12 text-center">
+      <div className="mx-auto max-w-md">
+        <h2 className="text-2xl font-bold tracking-[-0.025em] text-ink">Add your first bed</h2>
+        <Breath className="mt-3">
+          A bed is where things grow, a raised bed, a greenhouse, a row, or a
+          container. Build one from a preset, then add what&rsquo;s planted in it.
+        </Breath>
+        <div className="mt-6">
+          <button type="button" onClick={onAddBed}
+            className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90">
+            + Build a bed
+          </button>
+        </div>
+        <div className="mt-8 flex items-center justify-center gap-2 text-[9px] font-bold uppercase tracking-[0.16em] text-faint">
+          <span>Beds</span><span aria-hidden>›</span>
+          <span>Plantings</span>
+        </div>
+      </div>
+    </div>
   );
 }

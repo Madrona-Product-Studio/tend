@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import type { Bed, BedLayout, BedShape, EquipmentKind, GardenTree, ID, Observation, Plant, Rect, Task } from '@/domain';
+import type { Bed, BedLayout, BedShape, Cover, EquipmentKind, GardenTree, ID, IrrigationNode, Observation, Plant, Rect, Sensor, Task, Zone } from '@/domain';
 import {
   loadGardenTree, setTaskDone, savePlantArrangement, insertPlant, deletePlant, saveBedLayout, insertBed, saveBedGeometry,
   renameZone, renameBed, addObservation, deleteObservation, addTask, deleteTask, setEquipmentAssignment, setIrrigationOn,
+  insertZone, renameGarden, updatePlant, insertCover, insertSensor, insertIrrigation, deleteEquipment,
 } from '@/data/repo';
 import { seedIfEmpty } from '@/data/seed';
 
@@ -18,8 +19,15 @@ interface GardenStore {
   setPlantArrangement: (updates: { id: ID; row: number; order: number }[]) => Promise<void>;
   addPlant: (plant: Plant) => Promise<void>;
   removePlant: (plantId: ID) => Promise<void>;
+  updatePlant: (id: ID, patch: Partial<Plant>) => Promise<void>;
+  addCover: (cover: Cover) => Promise<void>;
+  addSensor: (sensor: Sensor) => Promise<void>;
+  addIrrigation: (node: IrrigationNode) => Promise<void>;
+  removeEquipment: (kind: EquipmentKind, id: ID) => Promise<void>;
   setBedLayout: (bedId: ID, layout: BedLayout) => Promise<void>;
   addBed: (bed: Bed) => Promise<void>;
+  addZone: (zone: Zone) => Promise<void>;
+  renameGarden: (name: string) => Promise<void>;
   setBedGeometry: (bedId: ID, footprint: Rect, shape?: BedShape) => Promise<void>;
   renameZone: (zoneId: ID, name: string) => Promise<void>;
   renameBed: (bedId: ID, name: string) => Promise<void>;
@@ -90,6 +98,47 @@ export const useGardenStore = create<GardenStore>((set, get) => ({
     await deletePlant(plantId);
   },
 
+  updatePlant: async (id, patch) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, plants: tree.plants.map((p) => (p.id === id ? { ...p, ...patch } : p)) } });
+    await updatePlant(id, patch);
+  },
+
+  addCover: async (cover) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, covers: [...tree.covers, cover] } });
+    await insertCover(cover);
+  },
+
+  addSensor: async (sensor) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, sensors: [...tree.sensors, sensor] } });
+    await insertSensor(sensor);
+  },
+
+  addIrrigation: async (node) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, irrigation: [...tree.irrigation, node] } });
+    await insertIrrigation(node);
+  },
+
+  removeEquipment: async (kind, id) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({
+      tree: {
+        ...tree,
+        covers: kind === 'cover' ? tree.covers.filter((c) => c.id !== id) : tree.covers,
+        sensors: kind === 'sensor' ? tree.sensors.filter((s) => s.id !== id) : tree.sensors,
+      },
+    });
+    await deleteEquipment(kind, id);
+  },
+
   setBedLayout: async (bedId, layout) => {
     const { tree } = get();
     if (!tree) return;
@@ -102,6 +151,20 @@ export const useGardenStore = create<GardenStore>((set, get) => ({
     if (!tree) return;
     set({ tree: { ...tree, beds: [...tree.beds, bed] } });
     await insertBed(bed);
+  },
+
+  addZone: async (zone) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, zones: [...tree.zones, zone] } });
+    await insertZone(zone);
+  },
+
+  renameGarden: async (name) => {
+    const { tree } = get();
+    if (!tree) return;
+    set({ tree: { ...tree, garden: { ...tree.garden, name } } });
+    await renameGarden(tree.garden.id, name);
   },
 
   setBedGeometry: async (bedId, footprint, shape) => {

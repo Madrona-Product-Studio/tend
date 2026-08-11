@@ -1,8 +1,13 @@
-import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Breath, Label, Mark } from '@design/primitives';
 import { T } from '@design/tokens';
 import { StudioContact, MarketingFooter } from '@components/MadronaContact';
+import { NewGardenDialog } from '@components/NewGardenDialog';
+import { listGardens, insertGarden, insertGardenContents } from '@/data/repo';
+import { DEMO_GARDEN_ID } from '@/data/seed';
+import type { GardenTemplateContents } from '@/data/gardenTemplates';
+import type { Garden } from '@/domain';
 
 // The product thesis, condensed from the About page. Each pillar is a single
 // idea a first-time viewer should leave with.
@@ -45,6 +50,22 @@ const STEPS = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
+  const [building, setBuilding] = useState(false);
+  const [gardens, setGardens] = useState<Garden[]>([]);
+
+  // Gardens the user has built here (local-first) — for re-entry. The demo is
+  // shown via its own CTA, so it's excluded from this list.
+  useEffect(() => {
+    void listGardens().then((all) => setGardens(all.filter((g) => g.id !== DEMO_GARDEN_ID)));
+  }, []);
+
+  const createGarden = async (garden: Garden, contents: GardenTemplateContents | null) => {
+    await insertGarden(garden);
+    if (contents) await insertGardenContents(contents);
+    navigate(`/garden/${garden.id}`);
+  };
+
   return (
     <>
       {/* React 19 native document metadata (hoisted to <head>) */}
@@ -92,10 +113,17 @@ export default function Home() {
             <p className="mt-3 text-[13px] sm:text-[14px] font-medium text-ink70">
               Every bed, plant, and sensor on one living map.
             </p>
-            <div className="mt-9">
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setBuilding(true)}
+                className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
+              >
+                Build a garden
+              </button>
               <Link
                 to="/garden/demo"
-                className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
+                className="inline-flex min-h-[48px] items-center rounded-card border border-line bg-card px-7 text-sm font-semibold text-ink70 hover:border-ink70 transition-colors"
               >
                 View demo
               </Link>
@@ -105,6 +133,24 @@ export default function Home() {
             </Link>
           </div>
         </section>
+
+        {gardens.length > 0 && (
+          <section className="mx-auto max-w-4xl px-6 pt-14 sm:px-10">
+            <Label className="text-clay">Your gardens</Label>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {gardens.map((g) => (
+                <Link
+                  key={g.id}
+                  to={`/garden/${g.id}`}
+                  className="tactile rounded-card border border-line bg-card p-4 hover:border-ink70"
+                >
+                  <div className="text-[15px] font-semibold text-ink">{g.name}</div>
+                  <div className="mt-0.5 text-[11px] text-muted">Open your map →</div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mx-auto max-w-4xl px-6 py-16 sm:px-10 sm:py-24">
           <Label className="text-clay">Why GardenHQ</Label>
@@ -153,13 +199,22 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-16 flex items-center justify-center gap-6">
-            <Link
-              to="/garden/demo"
-              className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
-            >
-              View demo
-            </Link>
+          <div className="mt-16 flex flex-col items-center gap-5">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setBuilding(true)}
+                className="cta-seal inline-flex min-h-[48px] items-center rounded-card bg-seal px-7 text-sm font-semibold text-card hover:opacity-90"
+              >
+                Build a garden
+              </button>
+              <Link
+                to="/garden/demo"
+                className="inline-flex min-h-[48px] items-center rounded-card border border-line bg-card px-7 text-sm font-semibold text-ink70 hover:border-ink70 transition-colors"
+              >
+                View demo
+              </Link>
+            </div>
             <Link to="/about" className="text-[13px] font-semibold text-clay hover:text-ink transition-colors">
               About GardenHQ
             </Link>
@@ -172,6 +227,8 @@ export default function Home() {
 
         <MarketingFooter />
       </main>
+
+      {building && <NewGardenDialog onClose={() => setBuilding(false)} onCreate={createGarden} />}
     </>
   );
 }
@@ -205,8 +262,9 @@ function WaitlistSignup() {
     <div className="mt-16 border-t border-line pt-10 text-center">
       <Label className="text-clay">Early access</Label>
       <p className="mx-auto mt-2 max-w-md text-[14px] leading-[1.6] text-clay">
-        Want a map of your own garden? Leave an email and we&rsquo;ll write
-        when accounts open.
+        A garden you build here saves to this device. Leave an email and
+        we&rsquo;ll write when accounts open, so you can save and sync it
+        everywhere.
       </p>
       {state === 'done' ? (
         <p className="mt-5 text-[14px] font-semibold text-live">You&rsquo;re on the list.</p>
